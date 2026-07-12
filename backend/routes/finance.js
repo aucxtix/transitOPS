@@ -29,6 +29,9 @@ const expenseSchema = z.object({
 
 // Fuel Logs
 router.get('/fuel', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
+  if (!['Fleet Manager', 'Financial Analyst'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     const logs = db.prepare(`
       SELECT f.*, v.registration_number, v.name_model 
@@ -43,6 +46,7 @@ router.get('/fuel', requireRole(['Fleet Manager', 'Financial Analyst']), (req, r
 });
 
 router.post('/fuel', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const data = fuelSchema.parse(req.body);
     const stmt = db.prepare(`
@@ -60,6 +64,9 @@ router.post('/fuel', requireRole(['Fleet Manager']), (req, res) => {
 
 // Expenses
 router.get('/expenses', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
+  if (!['Fleet Manager', 'Financial Analyst'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     const expenses = db.prepare(`
       SELECT e.*, v.registration_number, v.name_model 
@@ -74,6 +81,7 @@ router.get('/expenses', requireRole(['Fleet Manager', 'Financial Analyst']), (re
 });
 
 router.post('/expenses', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const data = expenseSchema.parse(req.body);
     const stmt = db.prepare(`

@@ -23,6 +23,9 @@ const completeTripSchema = z.object({
 router.use(authenticate);
 
 router.get('/', (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     let query = `
       SELECT t.*, v.registration_number, v.name_model as vehicle_name, d.name as driver_name 
@@ -54,6 +57,9 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     const data = tripSchema.parse(req.body);
     
@@ -89,6 +95,9 @@ router.post('/', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
 
 // Dispatch Trip
 router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   const { id } = req.params;
   
   const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);
@@ -118,6 +127,9 @@ router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher']), (req, 
 
 // Complete Trip
 router.put('/:id/complete', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   const { id } = req.params;
   
   try {
@@ -152,6 +164,9 @@ router.put('/:id/complete', requireRole(['Fleet Manager', 'Dispatcher']), (req, 
 
 // Cancel Trip
 router.put('/:id/cancel', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   const { id } = req.params;
   
   const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);

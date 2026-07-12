@@ -20,12 +20,12 @@ const Sidebar = () => {
   const { theme, toggleTheme } = useTheme();
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Vehicles', path: '/vehicles', icon: Truck },
-    { name: 'Drivers', path: '/drivers', icon: Users },
-    { name: 'Trips', path: '/trips', icon: Map },
-    { name: 'Maintenance', path: '/maintenance', icon: Wrench },
-    { name: 'Finance', path: '/finance', icon: CircleDollarSign },
+    { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'] },
+    { name: 'Vehicles', path: '/vehicles', icon: Truck, roles: ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst'] },
+    { name: 'Drivers', path: '/drivers', icon: Users, roles: ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst'] },
+    { name: 'Trips', path: '/trips', icon: Map, roles: ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'] },
+    { name: 'Maintenance', path: '/maintenance', icon: Wrench, roles: ['Fleet Manager', 'Safety Officer'] },
+    { name: 'Finance', path: '/finance', icon: CircleDollarSign, roles: ['Fleet Manager', 'Financial Analyst'] },
   ];
 
   return (
@@ -36,7 +36,7 @@ const Sidebar = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto py-6 flex flex-col gap-2 px-4">
-        {navItems.map((item) => {
+        {navItems.filter(item => user && item.roles.includes(user.role)).map((item) => {
           const Icon = item.icon;
           return (
             <NavLink

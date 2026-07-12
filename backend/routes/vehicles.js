@@ -20,6 +20,9 @@ router.use(authenticate);
 
 // Get available vehicles
 router.get('/available', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   const { type, region } = req.query;
   let query = "SELECT * FROM vehicles WHERE status = 'Available'";
   const params = [];
@@ -42,6 +45,9 @@ router.get('/available', requireRole(['Fleet Manager', 'Dispatcher']), (req, res
 });
 
 router.get('/', (req, res) => {
+  if (!['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     const vehicles = db.prepare('SELECT * FROM vehicles ORDER BY created_at DESC').all();
     res.json(vehicles);
@@ -51,6 +57,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const data = vehicleSchema.parse(req.body);
     
@@ -84,6 +91,7 @@ router.post('/', requireRole(['Fleet Manager']), (req, res) => {
 });
 
 router.put('/:id', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const { id } = req.params;
     const data = vehicleSchema.parse(req.body);
@@ -115,6 +123,7 @@ router.put('/:id', requireRole(['Fleet Manager']), (req, res) => {
 });
 
 router.delete('/:id', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     db.prepare('DELETE FROM vehicles WHERE id = ?').run(req.params.id);
     res.json({ success: true });

@@ -19,6 +19,9 @@ const closeMaintenanceSchema = z.object({
 router.use(authenticate);
 
 router.get('/', (req, res) => {
+  if (!['Fleet Manager', 'Safety Officer'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     const logs = db.prepare(`
       SELECT m.*, v.registration_number, v.name_model
@@ -33,6 +36,7 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const data = maintenanceSchema.parse(req.body);
     
@@ -62,6 +66,7 @@ router.post('/', requireRole(['Fleet Manager']), (req, res) => {
 });
 
 router.put('/:id/close', requireRole(['Fleet Manager']), (req, res) => {
+  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   const { id } = req.params;
   
   try {

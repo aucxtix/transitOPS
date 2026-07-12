@@ -1,12 +1,17 @@
 import express from 'express';
 import db from '../db.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, requireRole } from '../middleware/auth.js';
 
 const router = express.Router();
 
 router.use(authenticate);
 
-router.get('/kpi', (req, res) => {
+const ALL_ROLES = ['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'];
+
+router.get('/kpi', requireRole(ALL_ROLES), (req, res) => {
+  if (!ALL_ROLES.includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     const vehicles = db.prepare('SELECT status, COUNT(*) as count FROM vehicles GROUP BY status').all();
     const trips = db.prepare('SELECT status, COUNT(*) as count FROM trips GROUP BY status').all();
@@ -52,7 +57,10 @@ router.get('/kpi', (req, res) => {
   }
 });
 
-router.get('/reports', (req, res) => {
+router.get('/reports', requireRole(ALL_ROLES), (req, res) => {
+  if (!ALL_ROLES.includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
   try {
     // For charting purposes, get completed trips aggregated by month (or recent trips)
     // Simplified: Just returning all completed trips for Recharts to process.
