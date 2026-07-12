@@ -30,17 +30,17 @@ const seed = async () => {
   for (const role of roles) insertRole.run(role.id, role.name);
 
   console.log('Seeding users...');
-  const insertUser = db.prepare('INSERT INTO users (name, email, password, role_id) VALUES (?, ?, ?, ?)');
+  const insertUser = db.prepare('INSERT INTO users (id, name, email, password, role_id) VALUES (?, ?, ?, ?, ?)');
   const users = [
-    { name: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', role: 1 },
-    { name: 'Dispatcher', email: 'dispatcher@transitops.com', pass: 'Dispatch@123', role: 2 },
-    { name: 'Safety Officer', email: 'safety@transitops.com', pass: 'Safety@123', role: 3 },
-    { name: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', role: 4 },
-    { name: 'Alex Driver', email: 'alex@transitops.com', pass: 'Driver@123', role: 5 }
+    { id: 1, name: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', role: 1 },
+    { id: 2, name: 'Dispatcher', email: 'dispatcher@transitops.com', pass: 'Dispatch@123', role: 2 },
+    { id: 3, name: 'Safety Officer', email: 'safety@transitops.com', pass: 'Safety@123', role: 3 },
+    { id: 4, name: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', role: 4 },
+    { id: 5, name: 'Alex Driver', email: 'alex@transitops.com', pass: 'Driver@123', role: 5 }
   ];
   for (const u of users) {
     const hash = await bcrypt.hash(u.pass, 10);
-    insertUser.run(u.name, u.email, hash, u.role);
+    insertUser.run(u.id, u.name, u.email, hash, u.role);
   }
 
   console.log('Seeding vehicles...');

@@ -122,6 +122,14 @@ export function initDb() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       FOREIGN KEY (user_id) REFERENCES users (id)
     );
+
+    CREATE INDEX IF NOT EXISTS idx_users_role_id ON users (role_id);
+    CREATE INDEX IF NOT EXISTS idx_trips_vehicle_id ON trips (vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_trips_driver_id ON trips (driver_id);
+    CREATE INDEX IF NOT EXISTS idx_maintenance_logs_vehicle_id ON maintenance_logs (vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_fuel_logs_vehicle_id ON fuel_logs (vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_fuel_logs_trip_id ON fuel_logs (trip_id);
+    CREATE INDEX IF NOT EXISTS idx_expenses_vehicle_id ON expenses (vehicle_id);
   `);
 }
 

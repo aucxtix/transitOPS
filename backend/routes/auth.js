@@ -6,7 +6,7 @@ import { authenticate } from '../middleware/auth.js';
 import { z } from 'zod';
 
 const router = express.Router();
-const JWT_SECRET = 'transitops-super-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'transitops-super-secret';
 
 const loginSchema = z.object({
   email: z.string().email(),

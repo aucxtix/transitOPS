@@ -14,7 +14,7 @@ const Unauthorized = () => {
       </p>
       <Link 
         to="/" 
-        className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-6 py-2.5 rounded-lg transition-colors shadow-sm"
+        className="mt-6 pill-button pill-button-dark shadow-md"
       >
         Return to Dashboard
       </Link>

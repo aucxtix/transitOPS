@@ -58,7 +58,7 @@ const Trips = () => {
         )}
       </div>
 
-      <div className="glass-panel rounded-3xl overflow-hidden">
+      <div className="glass-panel rounded-3xl overflow-hidden shadow-soft">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">
@@ -90,13 +90,13 @@ const Trips = () => {
                     {hasRole(['Fleet Manager', 'Dispatcher']) && (
                       <div className="flex justify-end gap-2">
                         {t.status === 'Pending' && (
-                          <button onClick={() => handleAction(t.id, 'dispatch')} className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 font-medium transition-colors">Dispatch</button>
+                          <button onClick={() => handleAction(t.id, 'dispatch')} className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 rounded-xl hover:bg-blue-500/20 font-medium transition-colors">Dispatch</button>
                         )}
                         {t.status === 'On Trip' && (
-                          <button onClick={() => handleAction(t.id, 'complete')} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded hover:bg-emerald-500/20 font-medium transition-colors">Complete</button>
+                          <button onClick={() => handleAction(t.id, 'complete')} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-xl hover:bg-emerald-500/20 font-medium transition-colors">Complete</button>
                         )}
                         {(t.status === 'Pending' || t.status === 'On Trip') && (
-                          <button onClick={() => handleAction(t.id, 'cancel')} className="text-xs px-3 py-1.5 bg-red-500/10 text-red-600 rounded hover:bg-red-500/20 font-medium transition-colors">Cancel</button>
+                          <button onClick={() => handleAction(t.id, 'cancel')} className="text-xs px-3 py-1.5 bg-red-500/10 text-red-600 rounded-xl hover:bg-red-500/20 font-medium transition-colors">Cancel</button>
                         )}
                       </div>
                     )}

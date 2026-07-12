@@ -37,7 +37,7 @@ const Finance = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Fuel Logs */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div className="glass-panel rounded-3xl overflow-hidden shadow-soft flex flex-col">
           <div className="p-6 border-b border-border bg-foreground/[0.02]">
             <h2 className="text-lg font-semibold">Fuel Logs</h2>
           </div>
@@ -66,7 +66,7 @@ const Finance = () => {
         </div>
 
         {/* Expenses */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col">
+        <div className="glass-panel rounded-3xl overflow-hidden shadow-soft flex flex-col">
           <div className="p-6 border-b border-border bg-foreground/[0.02]">
             <h2 className="text-lg font-semibold">Expenses</h2>
           </div>

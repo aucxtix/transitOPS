@@ -45,13 +45,13 @@ const Maintenance = () => {
           <p className="text-foreground/60 text-sm mt-1">Track vehicle repairs and service history.</p>
         </div>
         {hasRole(['Fleet Manager']) && (
-          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+          <button className="pill-button pill-button-dark shadow-sm">
             Create Log
           </button>
         )}
       </div>
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <div className="glass-panel rounded-3xl overflow-hidden shadow-soft">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">

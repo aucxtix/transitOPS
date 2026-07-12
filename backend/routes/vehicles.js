@@ -99,6 +99,15 @@ router.put('/:id', requireRole(['Fleet Manager']), (req, res) => {
     const vehicle = db.prepare('SELECT * FROM vehicles WHERE id = ?').get(id);
     if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
     
+    // Retired -> Never restored business rule
+    if (vehicle.status === 'Retired') {
+      return res.status(400).json({ error: 'Retired vehicles cannot be modified or restored to service.' });
+    }
+
+    if (data.status === 'Retired' && vehicle.status === 'On Trip') {
+      return res.status(400).json({ error: 'Cannot retire a vehicle while it is active on a trip.' });
+    }
+
     const existing = db.prepare('SELECT * FROM vehicles WHERE registration_number = ? AND id != ?').get(data.registration_number, id);
     if (existing) return res.status(400).json({ error: 'Registration number must be unique.' });
 
@@ -125,7 +134,15 @@ router.put('/:id', requireRole(['Fleet Manager']), (req, res) => {
 router.delete('/:id', requireRole(['Fleet Manager']), (req, res) => {
   if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
-    db.prepare('DELETE FROM vehicles WHERE id = ?').run(req.params.id);
+    const { id } = req.params;
+    const vehicle = db.prepare('SELECT * FROM vehicles WHERE id = ?').get(id);
+    if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
+    
+    if (vehicle.status === 'Retired') {
+      return res.status(400).json({ error: 'Retired vehicles cannot be deleted to preserve audit and operational logs.' });
+    }
+
+    db.prepare('DELETE FROM vehicles WHERE id = ?').run(id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to delete vehicle. It may be in use.' });

@@ -3,11 +3,13 @@ import api from '../services/api';
 import { BarChart3, TrendingUp, PieChart, Download } from 'lucide-react';
 import { KPICard } from '../components/ui/KPICard';
 import { InlineErrorBanner } from '../components/ui/InlineErrorBanner';
+import { useAuth } from '../hooks/useAuth';
 
 const Reports = () => {
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { hasRole } = useAuth();
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -71,12 +73,14 @@ const Reports = () => {
           <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
           <p className="text-foreground/50 font-medium mt-1">Operational data summaries and exports.</p>
         </div>
-        <button 
-          onClick={handleExport}
-          className="pill-button pill-button-dark shadow-md flex items-center gap-2"
-        >
-          <Download size={16} /> Export Operational Data
-        </button>
+        {hasRole(['Fleet Manager', 'Financial Analyst']) && (
+          <button 
+            onClick={handleExport}
+            className="pill-button pill-button-dark shadow-md flex items-center gap-2"
+          >
+            <Download size={16} /> Export Operational Data
+          </button>
+        )}
       </div>
 
       <InlineErrorBanner message={error} onClose={() => setError(null)} />

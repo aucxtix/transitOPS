@@ -5,7 +5,7 @@ import { Truck, Activity, CalendarCheck, ArrowUpRight, Search, Plus } from 'luci
 import { MonoNumber } from '../components/ui/MonoNumber';
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const [kpis, setKpis] = useState(null);
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -77,12 +77,16 @@ const Dashboard = () => {
             </div>
             
             <div className="flex flex-col gap-3">
-              <button className="pill-button pill-button-light shadow-sm text-sm">
-                <Plus size={16} /> Add Vehicle
-              </button>
-              <button className="pill-button pill-button-dark shadow-md text-sm">
-                <Truck size={16} /> Dispatch Trip
-              </button>
+              {hasRole(['Fleet Manager']) && (
+                <button className="pill-button pill-button-light shadow-sm text-sm">
+                  <Plus size={16} /> Add Vehicle
+                </button>
+              )}
+              {hasRole(['Fleet Manager', 'Dispatcher']) && (
+                <button className="pill-button pill-button-dark shadow-md text-sm">
+                  <Truck size={16} /> Dispatch Trip
+                </button>
+              )}
             </div>
           </div>
           

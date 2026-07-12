@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = 'transitops-super-secret'; // Hardcoded for demo
+const JWT_SECRET = process.env.JWT_SECRET || 'transitops-super-secret';
 
 export const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
