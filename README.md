@@ -1,8 +1,73 @@
-# 📸 Application Preview
+<div align="center">
+  <h1>🚛 TransitOps</h1>
+  <p><strong>Next-Generation Enterprise Fleet Management & Logistics Platform</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+    <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node" />
+    <img src="https://img.shields.io/badge/Express.js-404D59?style=for-the-badge" alt="Express" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind" />
+    <img src="https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  </p>
+</div>
 
-TransitOps is designed as a modern enterprise fleet management platform. Below are key interfaces that demonstrate the application's security, usability, and operational workflows.
+<br/>
+
+TransitOps is a highly scalable, full-stack logistics and fleet management platform engineered for modern enterprise operations. It provides role-based access, real-time analytics, secure trip dispatching, and granular financial telemetry all wrapped in a stunning, premium glassmorphism UI.
+
+## ✨ Core Features
+- **Strict Role-Based Access Control (RBAC):** Distinct, isolated workflows for Fleet Managers, Dispatchers, Drivers, Financial Analysts, and Safety Officers.
+- **Enterprise Reporting Engine:** Real-time data visualization utilizing `Recharts` for fleet utilization, driver safety scores, and fuel consumption trends.
+- **Secure Architecture:** JWT-based stateless authentication, bcrypt password hashing, `Helmet` security headers, and strict rate-limiting.
+- **Trip Lifecycle Management:** End-to-end trip assignment, cargo validation, driver dispatching, and completion tracking.
+- **Financial Telemetry:** Dynamic revenue/expense forecasting and one-click structured CSV exports.
+
+## 💻 Tech Stack
+- **Frontend:** React 18, Vite, Tailwind CSS v4, Recharts, Lucide React, React Router v6.
+- **Backend:** Node.js, Express.js, `better-sqlite3` (synchronous high-performance SQLite).
+- **Security:** `jsonwebtoken`, `bcryptjs`, `express-rate-limit`, `helmet`, `cors`.
 
 ---
+
+## 🚀 Quick Start / Installation
+
+Follow these instructions to run TransitOps locally for judging or development.
+
+### 1. Clone the Repository
+\`\`\`bash
+git clone https://github.com/aucxtix/transitOPS.git
+cd transitOPS
+\`\`\`
+
+### 2. Setup the Backend
+\`\`\`bash
+cd backend
+npm install
+npm run seed  # Generates the SQLite database with rich dummy data
+npm start     # Starts the API on http://localhost:8000
+\`\`\`
+
+### 3. Setup the Frontend
+Open a new terminal window:
+\`\`\`bash
+cd frontend
+npm install
+npm run dev   # Starts the Vite dev server on http://localhost:5173
+\`\`\`
+
+### 4. Demo Credentials
+Use these credentials to test the various Role-Based Access controls. Password for all accounts is: **`Admin@123`** (or relevant suffix).
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Fleet Manager** | `admin@transitops.com` | `Admin@123` |
+| **Dispatcher** | `dispatcher@transitops.com` | `Dispatch@123` |
+| **Safety Officer** | `safety@transitops.com` | `Safety@123` |
+| **Financial Analyst** | `finance@transitops.com` | `Finance@123` |
+| **Driver** | `alex@transitops.com` | `Driver@123` |
+
+---
+
+# 📸 Application Showcase
 
 ## 🔐 Secure Authentication Portal
 
