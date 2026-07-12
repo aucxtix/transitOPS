@@ -116,6 +116,36 @@ Rate limiting safeguards the application against brute-force attacks and API abu
 
 ---
 
+## 🌍 Global Telemetry & Fleet Tracking (Premium)
+
+For enterprise-scale operations, TransitOps provides a state-of-the-art telemetry visualization system. This module aggregates live GPS, IoT sensor data, and route optimization algorithms into a single pane of glass.
+
+- Live geospatial tracking of all active vehicles
+- Route optimization utilizing edge-node calculations
+- Supply chain bottleneck visualization
+- Real-time weather and traffic overlays
+
+<p align="center">
+  <img src="./screenshot/global-telemetry.png" width="900" alt="Global Fleet Tracking">
+</p>
+
+---
+
+## 📈 Advanced Financial Analytics
+
+To ensure maximum profitability and operational efficiency, TransitOps includes a dedicated Financial Analytics suite designed for enterprise analysts.
+
+- Dynamic revenue vs expense forecasting
+- AI-driven maintenance cost prediction
+- Granular expense breakdowns (Tolls, Fuel, Fines)
+- Automated report generation and CSV exports
+
+<p align="center">
+  <img src="./screenshot/financial-analytics.png" width="900" alt="Financial Analytics Dashboard">
+</p>
+
+---
+
 ## 📊 Role-Based Experience
 
 Every user experiences a different application based on organizational responsibilities.
