@@ -8,6 +8,8 @@ import Drivers from './pages/Drivers';
 import Trips from './pages/Trips';
 import Maintenance from './pages/Maintenance';
 import Finance from './pages/Finance';
+import Reports from './pages/Reports';
+import Settings from './pages/Settings';
 import Unauthorized from './pages/Unauthorized';
 import Layout from './components/layout/Layout';
 
@@ -37,6 +39,8 @@ function App() {
           <Route path="/trips" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver']}><Trips /></RoleRoute></ProtectedRoute>} />
           <Route path="/maintenance" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Safety Officer']}><Maintenance /></RoleRoute></ProtectedRoute>} />
           <Route path="/finance" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Financial Analyst']}><Finance /></RoleRoute></ProtectedRoute>} />
+          <Route path="/reports" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Safety Officer', 'Financial Analyst']}><Reports /></RoleRoute></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager']}><Settings /></RoleRoute></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

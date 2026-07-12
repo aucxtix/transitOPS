@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Shield, Truck, Users, Activity, Banknote, Map, Hexagon } from 'lucide-react';
+import { DemoAccountCard } from '../components/ui/DemoAccountCard';
 
 const demoAccounts = [
   { role: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
@@ -104,25 +105,18 @@ const Login = () => {
           </div>
           
           <div className="grid grid-cols-1 gap-4">
-            {demoAccounts.map((account) => {
-              const Icon = account.icon;
-              return (
-                <button
-                  key={account.role}
-                  onClick={() => handleDemoClick(account)}
-                  className="flex items-center gap-5 p-5 glass-panel rounded-3xl border border-white/40 dark:border-white/5 hover:bg-white/60 dark:hover:bg-white/10 text-left transition-all hover:shadow-soft group relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-white/20 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className={`relative z-10 p-4 rounded-[1.25rem] ${account.bg} ${account.color} transition-transform group-hover:scale-105 shadow-sm`}>
-                    <Icon size={24} strokeWidth={2.5} />
-                  </div>
-                  <div className="relative z-10 flex-1">
-                    <p className="font-bold text-base mb-0.5">{account.role}</p>
-                    <p className="text-sm text-foreground/50 font-medium">{account.email}</p>
-                  </div>
-                </button>
-              );
-            })}
+            {demoAccounts.map((account) => (
+              <DemoAccountCard
+                key={account.role}
+                role={account.role}
+                email={account.email}
+                pass={account.pass}
+                icon={account.icon}
+                color={account.color}
+                bg={account.bg}
+                onClick={() => handleDemoClick(account)}
+              />
+            ))}
           </div>
         </div>
 
