@@ -1,99 +1,84 @@
-import { useEffect, useState } from 'react';
-import api from '../lib/api';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
-import { Truck, Activity, Wrench, CheckCircle } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
+import { Truck, Activity, AlertTriangle, CalendarCheck } from 'lucide-react';
+import { MonoNumber } from '../components/ui/MonoNumber';
 
-export default function Dashboard() {
+const Dashboard = () => {
   const [kpis, setKpis] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchKpis = async () => {
+    const fetchDashboard = async () => {
       try {
-        const res = await api.get('/dashboard/kpis');
-        setKpis(res.data);
+        const { data } = await api.get('/dashboard/kpi');
+        setKpis(data);
       } catch (err) {
-        console.error('Failed to fetch KPIs', err);
+        setError('Failed to load dashboard data');
+      } finally {
+        setLoading(false);
       }
     };
-    fetchKpis();
+    fetchDashboard();
   }, []);
 
-  if (!kpis) return <div className="p-4">Loading...</div>;
+  if (loading) return <div className="animate-pulse space-y-4">
+    <div className="h-8 bg-border rounded w-1/4"></div>
+    <div className="grid grid-cols-4 gap-4"><div className="h-32 bg-border rounded"></div><div className="h-32 bg-border rounded"></div></div>
+  </div>;
+  if (error) return <div className="p-4 bg-red-500/10 text-red-500 rounded-lg">{error}</div>;
 
-  const pieData = [
-    { name: 'Available', value: kpis.availableVehicles, color: '#22c55e' },
-    { name: 'On Trip', value: kpis.activeVehicles - kpis.availableVehicles, color: '#3b82f6' },
-    { name: 'In Shop', value: kpis.vehiclesInMaintenance, color: '#f59e0b' },
+  const kpiCards = [
+    { title: 'Active Vehicles', value: kpis.activeVehicles, icon: Activity, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { title: 'Available', value: kpis.availableVehicles, icon: Truck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { title: 'In Maintenance', value: kpis.inMaintenance, icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { title: 'Active Trips', value: kpis.activeTrips, icon: CalendarCheck, color: 'text-purple-500', bg: 'bg-purple-500/10', glow: true },
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <KpiCard title="Active Vehicles" value={kpis.activeVehicles} icon={Truck} color="text-blue-600" bg="bg-blue-100" />
-        <KpiCard title="Vehicles in Maintenance" value={kpis.vehiclesInMaintenance} icon={Wrench} color="text-orange-600" bg="bg-orange-100" />
-        <KpiCard title="Active Trips" value={kpis.activeTrips} icon={Activity} color="text-purple-600" bg="bg-purple-100" />
-        <KpiCard title="Drivers On Duty" value={kpis.driversOnDuty} icon={CheckCircle} color="text-green-600" bg="bg-green-100" />
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-foreground/60 text-sm mt-1">Live overview of fleet operations.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {kpiCards.map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <div key={i} className={`p-6 rounded-2xl border border-border bg-card relative overflow-hidden group ${card.glow ? 'shadow-[0_0_20px_rgba(168,85,247,0.15)] border-purple-500/30' : ''}`}>
+              <div className="flex justify-between items-start mb-4">
+                <div className={`p-3 rounded-xl ${card.bg} ${card.color}`}>
+                  <Icon size={20} />
+                </div>
+              </div>
+              <div>
+                <h3 className="text-3xl font-bold font-mono tracking-tight mb-1">{card.value}</h3>
+                <p className="text-sm font-medium text-foreground/60">{card.title}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Fleet Status Distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Stats</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border">
-                <span className="font-medium text-gray-700">Fleet Utilization</span>
-                <span className="text-2xl font-bold text-blue-600">{kpis.fleetUtilizationPercent}%</span>
-              </div>
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border">
-                <span className="font-medium text-gray-700">Pending Trips</span>
-                <span className="text-2xl font-bold text-orange-600">{kpis.pendingTrips}</span>
-              </div>
-              <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg border">
-                <span className="font-medium text-gray-700">Available Vehicles</span>
-                <span className="text-2xl font-bold text-green-600">{kpis.availableVehicles}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="text-lg font-bold mb-4">Fleet Utilization</h3>
+          <div className="flex items-center gap-4">
+            <div className="text-5xl font-bold font-mono text-primary">{kpis.fleetUtilization}%</div>
+            <p className="text-sm text-foreground/60 max-w-[200px]">Of your fleet is currently deployed on active trips.</p>
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-2xl p-6">
+          <h3 className="text-lg font-bold mb-4">Drivers On Duty</h3>
+          <div className="flex items-center gap-4">
+            <div className="text-5xl font-bold font-mono text-emerald-500">{kpis.driversOnDuty}</div>
+            <p className="text-sm text-foreground/60 max-w-[200px]">Drivers are currently engaged in active transport.</p>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 
-function KpiCard({ title, value, icon: Icon, color, bg }) {
-  return (
-    <Card>
-      <CardContent className="p-6 flex items-center space-x-4">
-        <div className={`p-3 rounded-full ${bg}`}>
-          <Icon className={`w-6 h-6 ${color}`} />
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <h3 className="text-2xl font-bold text-gray-900">{value}</h3>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+export default Dashboard;

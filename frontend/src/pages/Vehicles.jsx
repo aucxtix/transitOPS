@@ -1,120 +1,72 @@
-import { useEffect, useState } from 'react';
-import api from '../lib/api';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
+import { StatusBadge } from '../components/ui/StatusBadge';
+import { MonoNumber } from '../components/ui/MonoNumber';
 
-export default function Vehicles() {
+const Vehicles = () => {
   const [vehicles, setVehicles] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ registration_number: '', name_model: '', type: 'Van', max_load_capacity: '', acquisition_cost: '' });
-
-  const fetchVehicles = async () => {
-    try {
-      const res = await api.get('/vehicles');
-      setVehicles(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const { data } = await api.get('/vehicles');
+        setVehicles(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchVehicles();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/vehicles', formData);
-      setShowForm(false);
-      setFormData({ registration_number: '', name_model: '', type: 'Van', max_load_capacity: '', acquisition_cost: '' });
-      fetchVehicles();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Error creating vehicle');
-    }
-  };
+  if (loading) return <div className="animate-pulse h-64 bg-border rounded-xl"></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Vehicle Registry</h2>
-        <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'Add Vehicle'}</Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Vehicle Registry</h1>
+          <p className="text-foreground/60 text-sm mt-1">Manage your fleet, view status, and track metrics.</p>
+        </div>
       </div>
 
-      {showForm && (
-        <Card>
-          <CardHeader><CardTitle>Add New Vehicle</CardTitle></CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Registration Number</label>
-                <Input required value={formData.registration_number} onChange={e => setFormData({...formData, registration_number: e.target.value})} placeholder="e.g. Van-05" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Model/Name</label>
-                <Input required value={formData.name_model} onChange={e => setFormData({...formData, name_model: e.target.value})} placeholder="Ford Transit" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Type</label>
-                <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                  <option value="Van">Van</option>
-                  <option value="Truck">Truck</option>
-                  <option value="Car">Car</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Max Load Capacity (kg)</label>
-                <Input type="number" required value={formData.max_load_capacity} onChange={e => setFormData({...formData, max_load_capacity: e.target.value})} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Acquisition Cost</label>
-                <Input type="number" required value={formData.acquisition_cost} onChange={e => setFormData({...formData, acquisition_cost: e.target.value})} />
-              </div>
-              <div className="col-span-full">
-                <Button type="submit">Save Vehicle</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
-                <tr>
-                  <th className="px-6 py-3">Registration</th>
-                  <th className="px-6 py-3">Model</th>
-                  <th className="px-6 py-3">Type</th>
-                  <th className="px-6 py-3">Capacity</th>
-                  <th className="px-6 py-3">Status</th>
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">
+              <tr>
+                <th className="px-6 py-4">Registration</th>
+                <th className="px-6 py-4">Model</th>
+                <th className="px-6 py-4">Type</th>
+                <th className="px-6 py-4">Capacity</th>
+                <th className="px-6 py-4">Odometer</th>
+                <th className="px-6 py-4">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {vehicles.map((v) => (
+                <tr key={v.id} className="hover:bg-foreground/[0.02] transition-colors">
+                  <td className="px-6 py-4"><MonoNumber value={v.registration_number} className="text-primary font-semibold" /></td>
+                  <td className="px-6 py-4 font-medium">{v.name_model}</td>
+                  <td className="px-6 py-4 text-foreground/70">{v.type}</td>
+                  <td className="px-6 py-4"><MonoNumber value={v.max_load_capacity} suffix=" kg" /></td>
+                  <td className="px-6 py-4"><MonoNumber value={v.odometer} suffix=" km" /></td>
+                  <td className="px-6 py-4"><StatusBadge status={v.status} /></td>
                 </tr>
-              </thead>
-              <tbody>
-                {vehicles.map(v => (
-                  <tr key={v.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium">{v.registration_number}</td>
-                    <td className="px-6 py-4">{v.name_model}</td>
-                    <td className="px-6 py-4">{v.type}</td>
-                    <td className="px-6 py-4">{v.max_load_capacity} kg</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        v.status === 'Available' ? 'bg-green-100 text-green-800' :
-                        v.status === 'On Trip' ? 'bg-blue-100 text-blue-800' :
-                        v.status === 'In Shop' ? 'bg-orange-100 text-orange-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {v.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+              ))}
+              {vehicles.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="px-6 py-12 text-center text-foreground/50">No vehicles found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default Vehicles;

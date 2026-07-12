@@ -1,91 +1,123 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card';
-import { Truck } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { Shield, Truck, Users, Activity, Banknote, Map } from 'lucide-react';
 
-export default function Login() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('admin@transitops.com');
-  const [password, setPassword] = useState('password123');
-  const [name, setName] = useState('');
+const demoAccounts = [
+  { role: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', icon: Shield, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+  { role: 'Dispatcher', email: 'dispatcher@transitops.com', pass: 'Dispatch@123', icon: Map, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { role: 'Safety Officer', email: 'safety@transitops.com', pass: 'Safety@123', icon: Activity, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  { role: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', icon: Banknote, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  { role: 'Driver', email: 'alex@transitops.com', pass: 'Driver@123', icon: Truck, color: 'text-slate-500', bg: 'bg-slate-500/10' },
+];
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (e) => {
+    e?.preventDefault();
     setError('');
-    try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
-      const payload = isLogin ? { email, password } : { name, email, password };
-      const res = await axios.post(`http://localhost:3000${endpoint}`, payload);
-      
-      if (isLogin) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('userRole', res.data.role);
-        localStorage.setItem('userName', res.data.name);
-        navigate('/dashboard');
-      } else {
-        setIsLogin(true);
-        setError('Signup successful. Please login.');
-      }
-    } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred');
+    const { success, error: loginError } = await login(email, password);
+    if (success) {
+      navigate('/');
+    } else {
+      setError(loginError || 'Failed to login');
     }
   };
 
+  const handleDemoClick = (account) => {
+    setEmail(account.email);
+    setPassword(account.pass);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex flex-col justify-center items-center p-4">
-      <div className="mb-8 flex items-center gap-2">
-        <Truck className="w-10 h-10 text-blue-600" />
-        <h1 className="text-3xl font-bold dark:text-white">TransitOps</h1>
-      </div>
-      
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl">{isLogin ? 'Welcome back' : 'Create an account'}</CardTitle>
-          <CardDescription>
-            {isLogin ? 'Enter your credentials to access the platform' : 'Enter your details to register'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && <div className="p-3 text-sm text-red-500 bg-red-50 dark:bg-red-900/10 rounded-md border border-red-200 dark:border-red-900/50">{error}</div>}
-            
-            {!isLogin && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Name</label>
-                <Input required value={name} onChange={e => setName(e.target.value)} placeholder="John Doe" />
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 selection:bg-primary/20">
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+        
+        {/* Left Side: Login Form */}
+        <div className="bg-card border border-border p-8 rounded-2xl shadow-xl shadow-black/5">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold tracking-tight mb-2">TransitOps.</h1>
+            <p className="text-foreground/60">Sign in to your fleet management portal</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+            {error && (
+              <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm font-medium">
+                {error}
               </div>
             )}
             
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Email</label>
-              <Input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@transitops.com" />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium">Email address</label>
+              <input 
+                type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="px-4 py-2.5 bg-background border border-border rounded-lg outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-medium"
+                placeholder="name@company.com"
+                required
+              />
             </div>
             
-            <div className="space-y-2">
+            <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium">Password</label>
-              <Input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+              <input 
+                type="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="px-4 py-2.5 bg-background border border-border rounded-lg outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-medium"
+                placeholder="••••••••"
+                required
+              />
             </div>
-            
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-              {isLogin ? 'Login' : 'Sign Up'}
-            </Button>
-          </form>
-          
-          <div className="mt-4 text-center text-sm">
-            <span className="text-muted-foreground">
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
-            </span>
-            <button type="button" onClick={() => setIsLogin(!isLogin)} className="text-blue-600 hover:underline">
-              {isLogin ? 'Sign up' : 'Login'}
+
+            <button 
+              type="submit" 
+              disabled={loading || !email || !password}
+              className="mt-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+            >
+              {loading ? 'Authenticating...' : 'Sign In'}
             </button>
+          </form>
+        </div>
+
+        {/* Right Side: Demo Accounts */}
+        <div className="flex flex-col gap-4">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight">Demo Accounts</h2>
+            <p className="text-sm text-foreground/60 mb-4">Click any account to autofill credentials instantly.</p>
           </div>
-        </CardContent>
-      </Card>
+          
+          <div className="grid grid-cols-1 gap-3">
+            {demoAccounts.map((account) => {
+              const Icon = account.icon;
+              return (
+                <button
+                  key={account.role}
+                  onClick={() => handleDemoClick(account)}
+                  className="flex items-center gap-4 p-4 bg-card border border-border hover:border-primary/50 rounded-xl text-left transition-all hover:shadow-md group"
+                >
+                  <div className={`p-3 rounded-lg ${account.bg} ${account.color} transition-transform group-hover:scale-105`}>
+                    <Icon size={20} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">{account.role}</p>
+                    <p className="text-xs text-foreground/60 font-medium">{account.email}</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
-}
+};
+
+export default Login;

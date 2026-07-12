@@ -1,152 +1,114 @@
-import { useEffect, useState } from 'react';
-import api from '../lib/api';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
+import { StatusBadge } from '../components/ui/StatusBadge';
+import { MonoNumber } from '../components/ui/MonoNumber';
+import { useAuth } from '../hooks/useAuth';
 
-export default function Trips() {
+const Trips = () => {
   const [trips, setTrips] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [drivers, setDrivers] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ source: '', destination: '', vehicle_id: '', driver_id: '', cargo_weight: '', planned_distance: '' });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { hasRole } = useAuth();
 
-  const fetchData = async () => {
+  const fetchTrips = async () => {
     try {
-      const [tRes, vRes, dRes] = await Promise.all([
-        api.get('/trips'),
-        api.get('/vehicles'),
-        api.get('/drivers')
-      ]);
-      setTrips(tRes.data);
-      setVehicles(vRes.data.filter(v => v.status === 'Available'));
-      setDrivers(dRes.data.filter(d => d.status === 'Available' && new Date(d.license_expiry_date) >= new Date()));
+      const { data } = await api.get('/trips');
+      setTrips(data);
     } catch (err) {
       console.error(err);
+      setError('Failed to load trips');
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchTrips();
   }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post('/trips', formData);
-      setShowForm(false);
-      setFormData({ source: '', destination: '', vehicle_id: '', driver_id: '', cargo_weight: '', planned_distance: '' });
-      fetchData();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Error creating trip');
-    }
-  };
 
   const handleAction = async (id, action) => {
     try {
+      let body = {};
       if (action === 'complete') {
-        const dist = prompt('Enter actual distance (km):');
-        const fuel = prompt('Enter fuel consumed (liters):');
+        const dist = prompt('Enter actual distance (km):', '150');
+        const fuel = prompt('Enter fuel consumed (L):', '40');
         if (!dist || !fuel) return;
-        await api.put(`/trips/${id}/complete`, { actual_distance: dist, fuel_consumed: fuel });
-      } else {
-        await api.put(`/trips/${id}/${action}`);
+        body = { actual_distance: parseFloat(dist), fuel_consumed: parseFloat(fuel) };
       }
-      fetchData();
+      await api.put(`/trips/${id}/${action}`, body);
+      fetchTrips();
     } catch (err) {
-      alert(err.response?.data?.error || `Error ${action}ing trip`);
+      alert(err.response?.data?.error || 'Action failed');
     }
   };
+
+  if (loading) return <div className="animate-pulse h-64 bg-border rounded-xl"></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Trip Management</h2>
-        <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'Create Trip'}</Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Trip Dispatcher</h1>
+          <p className="text-foreground/60 text-sm mt-1">Manage, dispatch, and track trips.</p>
+        </div>
+        {hasRole(['Fleet Manager', 'Dispatcher']) && (
+          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+            Create Trip
+          </button>
+        )}
       </div>
 
-      {showForm && (
-        <Card>
-          <CardHeader><CardTitle>Create New Trip</CardTitle></CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Source</label>
-                <Input required value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Destination</label>
-                <Input required value={formData.destination} onChange={e => setFormData({...formData, destination: e.target.value})} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Vehicle</label>
-                <select required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.vehicle_id} onChange={e => setFormData({...formData, vehicle_id: e.target.value})}>
-                  <option value="">Select Vehicle</option>
-                  {vehicles.map(v => (
-                    <option key={v.id} value={v.id}>{v.registration_number} (Max: {v.max_load_capacity}kg)</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Driver</label>
-                <select required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.driver_id} onChange={e => setFormData({...formData, driver_id: e.target.value})}>
-                  <option value="">Select Driver</option>
-                  {drivers.map(d => (
-                    <option key={d.id} value={d.id}>{d.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Cargo Weight (kg)</label>
-                <Input type="number" required value={formData.cargo_weight} onChange={e => setFormData({...formData, cargo_weight: e.target.value})} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Planned Distance (km)</label>
-                <Input type="number" required value={formData.planned_distance} onChange={e => setFormData({...formData, planned_distance: e.target.value})} />
-              </div>
-              <div className="col-span-full">
-                <Button type="submit">Create Trip</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 gap-4">
-        {trips.map(trip => (
-          <Card key={trip.id}>
-            <CardContent className="p-6 flex flex-col md:flex-row justify-between items-center">
-              <div>
-                <h3 className="font-bold text-lg">{trip.source} → {trip.destination}</h3>
-                <p className="text-sm text-gray-500">
-                  Vehicle: {trip.registration_number} | Driver: {trip.driver_name} | Cargo: {trip.cargo_weight}kg
-                </p>
-                <div className="mt-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    trip.status === 'Draft' ? 'bg-gray-100 text-gray-800' :
-                    trip.status === 'Dispatched' ? 'bg-blue-100 text-blue-800' :
-                    trip.status === 'Completed' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
-                    {trip.status}
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-2 mt-4 md:mt-0">
-                {trip.status === 'Draft' && (
-                  <Button onClick={() => handleAction(trip.id, 'dispatch')} className="bg-blue-600">Dispatch</Button>
-                )}
-                {trip.status === 'Dispatched' && (
-                  <Button onClick={() => handleAction(trip.id, 'complete')} className="bg-green-600">Complete</Button>
-                )}
-                {(trip.status === 'Draft' || trip.status === 'Dispatched') && (
-                  <Button onClick={() => handleAction(trip.id, 'cancel')} variant="destructive">Cancel</Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">
+              <tr>
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Route</th>
+                <th className="px-6 py-4">Vehicle</th>
+                <th className="px-6 py-4">Driver</th>
+                <th className="px-6 py-4">Cargo</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {trips.map((t) => (
+                <tr key={t.id} className="hover:bg-foreground/[0.02] transition-colors">
+                  <td className="px-6 py-4"><MonoNumber value={t.id} prefix="#" className="text-primary" /></td>
+                  <td className="px-6 py-4 font-medium">{t.source} → {t.destination}</td>
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col">
+                      <span>{t.vehicle_name}</span>
+                      <MonoNumber value={t.registration_number} className="text-xs text-foreground/50" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">{t.driver_name}</td>
+                  <td className="px-6 py-4"><MonoNumber value={t.cargo_weight} suffix=" kg" /></td>
+                  <td className="px-6 py-4"><StatusBadge status={t.status} /></td>
+                  <td className="px-6 py-4 text-right">
+                    {hasRole(['Fleet Manager', 'Dispatcher']) && (
+                      <div className="flex justify-end gap-2">
+                        {t.status === 'Pending' && (
+                          <button onClick={() => handleAction(t.id, 'dispatch')} className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 rounded hover:bg-blue-500/20 font-medium transition-colors">Dispatch</button>
+                        )}
+                        {t.status === 'On Trip' && (
+                          <button onClick={() => handleAction(t.id, 'complete')} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded hover:bg-emerald-500/20 font-medium transition-colors">Complete</button>
+                        )}
+                        {(t.status === 'Pending' || t.status === 'On Trip') && (
+                          <button onClick={() => handleAction(t.id, 'cancel')} className="text-xs px-3 py-1.5 bg-red-500/10 text-red-600 rounded hover:bg-red-500/20 font-medium transition-colors">Cancel</button>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Trips;

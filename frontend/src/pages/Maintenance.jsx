@@ -1,117 +1,104 @@
-import { useEffect, useState } from 'react';
-import api from '../lib/api';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
+import { StatusBadge } from '../components/ui/StatusBadge';
+import { MonoNumber } from '../components/ui/MonoNumber';
+import { useAuth } from '../hooks/useAuth';
 
-export default function Maintenance() {
+const Maintenance = () => {
   const [logs, setLogs] = useState([]);
-  const [vehicles, setVehicles] = useState([]);
-  const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({ vehicle_id: '', description: '', cost: '' });
+  const [loading, setLoading] = useState(true);
+  const { hasRole } = useAuth();
 
-  const fetchData = async () => {
+  const fetchLogs = async () => {
     try {
-      const [mRes, vRes] = await Promise.all([
-        api.get('/maintenance'),
-        api.get('/vehicles')
-      ]);
-      setLogs(mRes.data);
-      // Only available vehicles can be put in maintenance (unless they already are, but creating new requires available)
-      setVehicles(vRes.data.filter(v => v.status === 'Available' || v.status === 'In Shop'));
+      const { data } = await api.get('/maintenance');
+      setLogs(data);
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchLogs();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleClose = async (id) => {
+    const cost = prompt('Enter maintenance cost ($):', '0');
+    if (cost === null) return;
     try {
-      await api.post('/maintenance', formData);
-      setShowForm(false);
-      setFormData({ vehicle_id: '', description: '', cost: '' });
-      fetchData();
+      await api.put(`/maintenance/${id}/close`, { cost: parseFloat(cost) });
+      fetchLogs();
     } catch (err) {
-      alert(err.response?.data?.error || 'Error creating maintenance record');
+      alert(err.response?.data?.error || 'Failed to close log');
     }
   };
 
-  const handleClose = async (id) => {
-    try {
-      await api.put(`/maintenance/${id}/close`);
-      fetchData();
-    } catch (err) {
-      alert(err.response?.data?.error || 'Error closing record');
-    }
-  };
+  if (loading) return <div className="animate-pulse h-64 bg-border rounded-xl"></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Maintenance Records</h2>
-        <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Record'}</Button>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Maintenance Logs</h1>
+          <p className="text-foreground/60 text-sm mt-1">Track vehicle repairs and service history.</p>
+        </div>
+        {hasRole(['Fleet Manager']) && (
+          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+            Create Log
+          </button>
+        )}
       </div>
 
-      {showForm && (
-        <Card>
-          <CardHeader><CardTitle>Create Maintenance Record</CardTitle></CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Vehicle</label>
-                <select required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.vehicle_id} onChange={e => setFormData({...formData, vehicle_id: e.target.value})}>
-                  <option value="">Select Vehicle</option>
-                  {vehicles.map(v => (
-                    <option key={v.id} value={v.id}>{v.registration_number}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Cost ($)</label>
-                <Input type="number" required value={formData.cost} onChange={e => setFormData({...formData, cost: e.target.value})} />
-              </div>
-              <div className="col-span-full">
-                <label className="text-sm font-medium">Description</label>
-                <Input required value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
-              </div>
-              <div className="col-span-full">
-                <Button type="submit">Save Record</Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 gap-4">
-        {logs.map(log => (
-          <Card key={log.id}>
-            <CardContent className="p-6 flex flex-col md:flex-row justify-between items-center">
-              <div>
-                <h3 className="font-bold text-lg">{log.registration_number} - {log.name_model}</h3>
-                <p className="text-sm text-gray-700 mt-1">{log.description}</p>
-                <p className="text-sm text-gray-500 mt-1">Cost: ${log.cost}</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    log.status === 'Open' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
-                  }`}>
-                    {log.status}
-                  </span>
-                  <span className="text-xs text-gray-400">Created: {new Date(log.created_at).toLocaleDateString()}</span>
-                </div>
-              </div>
-              <div className="mt-4 md:mt-0">
-                {log.status === 'Open' && (
-                  <Button onClick={() => handleClose(log.id)}>Close Record</Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">
+              <tr>
+                <th className="px-6 py-4">Vehicle</th>
+                <th className="px-6 py-4">Service</th>
+                <th className="px-6 py-4">Description</th>
+                <th className="px-6 py-4">Cost</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {logs.map((l) => (
+                <tr key={l.id} className="hover:bg-foreground/[0.02] transition-colors">
+                  <td className="px-6 py-4">
+                    <div className="flex flex-col">
+                      <span className="font-medium">{l.name_model}</span>
+                      <MonoNumber value={l.registration_number} className="text-xs text-foreground/50" />
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 font-medium">{l.maintenance_name}</td>
+                  <td className="px-6 py-4 text-foreground/70 max-w-xs truncate">{l.description}</td>
+                  <td className="px-6 py-4">
+                    {l.cost !== null ? <MonoNumber value={l.cost} prefix="$" /> : <span className="text-foreground/30">-</span>}
+                  </td>
+                  <td className="px-6 py-4"><StatusBadge status={l.status} /></td>
+                  <td className="px-6 py-4 text-right">
+                    {hasRole(['Fleet Manager']) && l.status === 'Open' && (
+                      <button onClick={() => handleClose(l.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded hover:bg-emerald-500/20 font-medium transition-colors">
+                        Close Log
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {logs.length === 0 && (
+                <tr>
+                  <td colSpan="6" className="px-6 py-12 text-center text-foreground/50">No maintenance logs found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-}
+};
+
+export default Maintenance;
