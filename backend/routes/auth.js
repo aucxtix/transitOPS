@@ -12,7 +12,8 @@ const router = express.Router();
 // Security Fix: Strict rate limiter for login
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 failed login attempts
+  max: 50, // Limit each IP to 50 attempts in dev
+  skipSuccessfulRequests: true, // Only count failed attempts
   message: { error: 'Too many login attempts from this IP, please try again after 15 minutes' }
 });
 

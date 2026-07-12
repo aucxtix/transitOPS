@@ -156,6 +156,29 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
+router.get('/reports', authenticate, requireRole(['Fleet Manager', 'Safety Officer', 'Financial Analyst']), (req, res) => {
+  try {
+    const completedTrips = db.prepare(`
+      SELECT t.*, v.registration_number 
+      FROM trips t
+      JOIN vehicles v ON t.vehicle_id = v.id
+      WHERE t.status = 'Completed'
+      ORDER BY t.created_at DESC
+      LIMIT 20
+    `).all();
+
+    const expenses = db.prepare(`
+      SELECT type, SUM(amount) as total 
+      FROM expenses 
+      GROUP BY type
+    `).all();
+
+    res.json({ completedTrips, expenses });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch reports data' });
+  }
+});
+
 router.get('/export', authenticate, requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
   try {
     const trips = db.prepare(`

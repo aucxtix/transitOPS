@@ -33,7 +33,7 @@ const Sidebar = () => {
         <span className="font-bold text-xl tracking-tight text-foreground">TransitOps</span>
       </div>
 
-      <div className="flex-1 flex flex-col items-center gap-4 w-full">
+      <div className="flex-1 flex flex-col gap-2 w-full mt-4">
         {navItems.filter(item => user && item.roles.includes(user.role)).map((item) => {
           const Icon = item.icon;
           return (
@@ -42,22 +42,22 @@ const Sidebar = () => {
               to={item.path}
               title={item.tooltip}
               className={({ isActive }) => cn(
-                "p-3.5 rounded-2xl transition-all duration-300 relative group",
+                "w-full flex items-center p-3.5 rounded-xl transition-all duration-300 relative group",
                 isActive 
                   ? "bg-card shadow-soft text-primary" 
                   : "text-foreground/50 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground"
               )}
             >
               {({ isActive }) => (
-                <div className="flex items-center gap-4 w-full px-2">
-                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                <>
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className="mr-3 ml-1" />
                   <span className={`font-medium ${isActive ? 'text-primary font-semibold' : 'text-foreground/70'}`}>
                     {item.tooltip}
                   </span>
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+                    <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-primary rounded-r-full shadow-[2px_0_8px_rgba(79,70,229,0.5)]" />
                   )}
-                </div>
+                </>
               )}
             </NavLink>
           );

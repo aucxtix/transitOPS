@@ -1,92 +1,143 @@
-# TransitOps - Smart Transport Platform
+# 📸 Application Preview
 
-TransitOps is a sophisticated, full-stack transportation and fleet management platform designed for enterprise logistics. The platform employs a role-based, decoupled architecture that offers specialized interfaces and secure operations for different organizational roles. 
+TransitOps is designed as a modern enterprise fleet management platform. Below are key interfaces that demonstrate the application's security, usability, and operational workflows.
 
-Built with modern web technologies, it features a React frontend powered by Vite and a robust Node.js backend using Express and SQLite.
+---
 
-## Core Features
+## 🔐 Secure Authentication Portal
 
-- **Role-Based Access Control (RBAC):** Deeply integrated authorization that dynamically tailors UI components and backend data payloads for five distinct roles:
-  - 🚚 **Fleet Manager**: High-level KPIs, fleet utilization rates, expense approvals, and overall monitoring.
-  - 🗺️ **Dispatcher**: Active route tracking, pending dispatch queues, and quick-assign capabilities.
-  - 👨‍✈️ **Driver**: Personal schedules, active trip status, distance logging, and safety score tracking.
-  - 📊 **Financial Analyst**: Secure ledger for pending expenses, overall fuel costs, and toll analytics.
-  - 🛡️ **Safety Officer**: Driver safety rankings, critical maintenance alerts, and compliance oversight.
-- **Optimistic UI Updates:** Instantaneous feedback on critical actions (like dispatching and completing trips) without manual page refreshes.
-- **Centralized Security:** Secure environment variable parsing (Zod), rate limiting, and JWT-based authentication.
-- **Dynamic Routing:** A single master Dashboard component dynamically routes and renders optimized views based strictly on authenticated role state.
-- **Glassmorphism Aesthetic:** Premium, highly-responsive user interface styled with Tailwind CSS, utilizing dark/light mode context.
+The authentication screen serves as the secure entry point into TransitOps. Users can log in using role-based credentials, with each authenticated role receiving a customized dashboard and permissions.
 
-## Technology Stack
+**Highlights**
 
-- **Frontend:** React 19, Vite, Tailwind CSS, Lucide React (Icons), React Router, Axios
-- **Backend:** Node.js, Express.js, better-sqlite3, jsonwebtoken, bcryptjs, Zod (Schema Validation)
-- **Database:** SQLite (WAL mode enabled for high concurrency)
+- JWT-based authentication
+- Secure password hashing (bcrypt)
+- Role-based login
+- Dark / Light theme support
+- Modern enterprise UI
 
-## Architecture Overview
+<p align="center">
+  <img src="./screenshot/login.png" width="900" alt="TransitOps Login Screen">
+</p>
 
-The system recently underwent a major architectural refactor to eliminate monolithic structures. The backend now executes optimized, isolated SQLite queries per role using a strict `switch(req.user.roleName)` block. On the frontend, `Dashboard.jsx` acts as a pure router, delegating rendering to isolated sub-components (e.g., `FleetManagerDash`, `DriverDash`). 
+---
 
-A robust foreign-key implementation links authentication profiles (`users` table) directly to operational profiles (`drivers` table), ensuring complete data integrity and preventing unauthorized mutations.
+## 🚚 Fleet Manager Dashboard
 
-## Getting Started
+The Fleet Manager dashboard provides a centralized operational overview of the entire fleet.
 
-### Prerequisites
-- Node.js (v18+)
-- npm
+Managers can monitor:
 
-### 1. Backend Setup
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file in the backend folder:
-   ```env
-   PORT=8000
-   JWT_SECRET=your_super_secret_jwt_key
-   JWT_EXPIRES_IN=24h
-   NODE_ENV=development
-   ```
-4. Seed the SQLite database:
-   ```bash
-   npm run seed
-   ```
-5. Start the backend server:
-   ```bash
-   npm run dev
-   ```
+- Fleet utilization
+- Vehicle availability
+- Active trips
+- Driver statistics
+- Maintenance alerts
+- Financial summaries
+- Operational KPIs
 
-### 2. Frontend Setup
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the Vite development server:
-   ```bash
-   npm run dev
-   ```
-4. Open the application in your browser at `http://localhost:5173`.
+The dashboard is optimized for quick decision-making using real-time visual analytics.
 
-## Default Test Accounts (Passwords are Role@123)
-- **Fleet Manager:** admin@transitops.com (Admin@123)
-- **Dispatcher:** dispatcher@transitops.com (Dispatch@123)
-- **Driver:** alex@transitops.com (Driver@123)
-- **Finance:** finance@transitops.com (Finance@123)
-- **Safety:** safety@transitops.com (Safety@123)
+<p align="center">
+  <img src="./screenshot/fleet-manager-dashboard.png" width="900" alt="Fleet Manager Dashboard">
+</p>
 
-## Security Enhancements
-- Passwords are strictly hashed via `bcryptjs`.
-- All routes are protected by the `authenticate` JWT middleware.
-- Specific actions (like dispatching trips) utilize `requireRole` middleware to block unauthorized HTTP requests.
-- The `drivers` schema enforces a strict `user_id` foreign key mapped to the authentication layer to prevent context-switching vulnerabilities.
+---
 
-## License
-MIT License.
+## 🚛 Trip Management & Dispatch Center
+
+The Trip Management module enables dispatchers and fleet managers to efficiently create, assign, monitor, and complete transportation operations.
+
+Core capabilities include:
+
+- Trip creation
+- Vehicle assignment
+- Driver assignment
+- Cargo validation
+- Trip dispatch
+- Trip completion
+- Status tracking
+- Business rule enforcement
+
+Backend validations ensure:
+
+- No vehicle can be dispatched twice
+- Suspended drivers cannot be assigned
+- Capacity limits are enforced
+- Vehicle and driver status updates remain synchronized
+
+<p align="center">
+  <img src="./screenshot/trip-management.png" width="900" alt="Trip Management">
+</p>
+
+---
+
+## 👨‍✈️ Driver Dashboard
+
+Each driver receives a personalized dashboard focused only on information relevant to their responsibilities.
+
+The Driver Dashboard includes:
+
+- Assigned trips
+- Trip history
+- Active route status
+- Safety information
+- Personal profile
+- Schedule overview
+
+Role-Based Access Control ensures drivers cannot access administrative modules or modify fleet resources.
+
+<p align="center">
+  <img src="./screenshot/driver-dashboard.png" width="900" alt="Driver Dashboard">
+</p>
+
+---
+
+## 🛡️ Enterprise Security & Rate Limiting
+
+TransitOps incorporates multiple security layers to protect operational data and backend services.
+
+Implemented security measures include:
+
+- JWT Authentication
+- Role-Based Authorization
+- Password Hashing
+- Rate Limiting
+- Helmet Security Headers
+- Input Validation
+- Protected APIs
+- Backend Permission Enforcement
+
+Rate limiting safeguards the application against brute-force attacks and API abuse while maintaining service availability.
+
+<p align="center">
+  <img src="./screenshot/rate-limiting.png" width="900" alt="Rate Limiting">
+</p>
+
+---
+
+## 📊 Role-Based Experience
+
+Every user experiences a different application based on organizational responsibilities.
+
+Supported roles include:
+
+- Fleet Manager
+- Dispatcher
+- Driver
+- Financial Analyst
+- Safety Officer
+
+Each role receives:
+
+- Dedicated dashboard
+- Custom navigation
+- Restricted APIs
+- Controlled actions
+- Independent workflows
+
+This architecture ensures both security and operational clarity.
+
+<p align="center">
+  <img src="./screenshot/rbac-overview.png" width="900" alt="Role Based Access">
+</p>
