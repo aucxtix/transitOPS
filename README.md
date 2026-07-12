@@ -33,10 +33,10 @@ TransitOps is a highly scalable, full-stack logistics and fleet management platf
 Follow these instructions to run TransitOps locally for judging or development.
 
 ### 1. Clone the Repository
-\`\`\`bash
+```bash
 git clone https://github.com/aucxtix/transitOPS.git
 cd transitOPS
-\`\`\`
+```
 
 ### 2. Setup the Backend
 \`\`\`bash
