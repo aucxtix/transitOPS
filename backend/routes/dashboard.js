@@ -158,22 +158,36 @@ router.get('/', authenticate, async (req, res) => {
 
 router.get('/reports', authenticate, requireRole(['Fleet Manager', 'Safety Officer', 'Financial Analyst']), (req, res) => {
   try {
-    const completedTrips = db.prepare(`
-      SELECT t.*, v.registration_number 
-      FROM trips t
-      JOIN vehicles v ON t.vehicle_id = v.id
-      WHERE t.status = 'Completed'
-      ORDER BY t.created_at DESC
-      LIMIT 20
-    `).all();
+    const completedTrips = db.prepare(`SELECT t.*, v.registration_number FROM trips t JOIN vehicles v ON t.vehicle_id = v.id WHERE t.status = 'Completed' ORDER BY t.created_at DESC LIMIT 20`).all();
+    const expenses = db.prepare(`SELECT type, SUM(amount) as total FROM expenses GROUP BY type`).all();
+    const vehicles = db.prepare(`SELECT status, COUNT(*) as count FROM vehicles GROUP BY status`).all();
+    const drivers = db.prepare(`SELECT name, safety_score FROM drivers ORDER BY safety_score DESC LIMIT 10`).all();
+    const fuelLogs = db.prepare(`SELECT date, SUM(liters) as liters, SUM(cost) as cost FROM fuel_logs GROUP BY date ORDER BY date ASC LIMIT 10`).all();
+    const maintenance = db.prepare(`SELECT status, COUNT(*) as count FROM maintenance_logs GROUP BY status`).all();
+    
+    let activeV = 0, availV = 0, maintV = 0;
+    vehicles.forEach(v => {
+      if (v.status === 'On Trip') activeV = v.count;
+      else if (v.status === 'Available') availV = v.count;
+      else if (v.status === 'In Shop') maintV = v.count;
+    });
 
-    const expenses = db.prepare(`
-      SELECT type, SUM(amount) as total 
-      FROM expenses 
-      GROUP BY type
-    `).all();
+    const kpis = {
+      totalTrips: db.prepare(`SELECT COUNT(*) as count FROM trips`).get().count,
+      totalFuelCost: db.prepare(`SELECT SUM(cost) as total FROM fuel_logs`).get().total || 0,
+      totalExpenses: db.prepare(`SELECT SUM(amount) as total FROM expenses WHERE status='Approved'`).get().total || 0,
+      avgSafetyScore: db.prepare(`SELECT AVG(safety_score) as avg FROM drivers`).get().avg || 0
+    };
 
-    res.json({ completedTrips, expenses });
+    res.json({ 
+      completedTrips, 
+      expenses, 
+      utilization: [{ name: 'Active', value: activeV }, { name: 'Available', value: availV }, { name: 'In Maintenance', value: maintV }],
+      drivers,
+      fuelLogs,
+      maintenance,
+      kpis
+    });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch reports data' });
   }
