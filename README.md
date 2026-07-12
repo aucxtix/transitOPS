@@ -1,150 +1,92 @@
-# TransitOps: Smart Transport Operations Platform
+# TransitOps - Smart Transport Platform
 
-TransitOps is an enterprise-grade Smart Transport Operations Platform built as a robust, secure, and demo-ready full-stack application. It features a complete fleet management, driver safety, and trip scheduling operations system backed by a strict 4-layer Role-Based Access Control (RBAC) security paradigm and a modern visual aesthetic inspired by fintech SaaS interfaces (lavender-tinged backgrounds, large rounded borders, and glassmorphism elements).
+TransitOps is a sophisticated, full-stack transportation and fleet management platform designed for enterprise logistics. The platform employs a role-based, decoupled architecture that offers specialized interfaces and secure operations for different organizational roles. 
 
----
+Built with modern web technologies, it features a React frontend powered by Vite and a robust Node.js backend using Express and SQLite.
 
-## 🛠️ Technology Stack
+## Core Features
 
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS v4, Recharts, Lucide React, React Router Dom, Axios |
-| **Backend** | Node.js, Express.js, JWT (`jsonwebtoken`), `bcryptjs`, `zod` validation, `helmet`, `cors`, `morgan`, `express-rate-limit` |
-| **Database** | SQLite via `better-sqlite3` (single-file, WAL mode enabled, foreign key constraints active) |
+- **Role-Based Access Control (RBAC):** Deeply integrated authorization that dynamically tailors UI components and backend data payloads for five distinct roles:
+  - 🚚 **Fleet Manager**: High-level KPIs, fleet utilization rates, expense approvals, and overall monitoring.
+  - 🗺️ **Dispatcher**: Active route tracking, pending dispatch queues, and quick-assign capabilities.
+  - 👨‍✈️ **Driver**: Personal schedules, active trip status, distance logging, and safety score tracking.
+  - 📊 **Financial Analyst**: Secure ledger for pending expenses, overall fuel costs, and toll analytics.
+  - 🛡️ **Safety Officer**: Driver safety rankings, critical maintenance alerts, and compliance oversight.
+- **Optimistic UI Updates:** Instantaneous feedback on critical actions (like dispatching and completing trips) without manual page refreshes.
+- **Centralized Security:** Secure environment variable parsing (Zod), rate limiting, and JWT-based authentication.
+- **Dynamic Routing:** A single master Dashboard component dynamically routes and renders optimized views based strictly on authenticated role state.
+- **Glassmorphism Aesthetic:** Premium, highly-responsive user interface styled with Tailwind CSS, utilizing dark/light mode context.
 
----
+## Technology Stack
 
-## 🔒 4-Layer RBAC Matrix
+- **Frontend:** React 19, Vite, Tailwind CSS, Lucide React (Icons), React Router, Axios
+- **Backend:** Node.js, Express.js, better-sqlite3, jsonwebtoken, bcryptjs, Zod (Schema Validation)
+- **Database:** SQLite (WAL mode enabled for high concurrency)
 
-Security is enforced at four independent levels (Navigation, Frontend Routes, Backend API Middleware, Controller Validation).
+## Architecture Overview
 
-| Role | Navigation & Routes | Page Access | Write Actions Allowed | API Privilege Level |
-| :--- | :--- | :--- | :--- | :--- |
-| 👑 **Fleet Manager** | Full access | All pages | Create/Edit/Delete Vehicles & Drivers, Dispatch/Complete Trips, Open/Close Maintenance, Add Fuel/Expenses, Export CSV | Superuser |
-| 🗺️ **Dispatcher** | Dashboard, Trips, Vehicles, Drivers | Operations focus | Dispatch, Complete, & Cancel Trips | Operations Manager |
-| 🛡️ **Safety Officer** | Dashboard, Drivers, Maintenance, Reports | Compliance focus | Read-only access to lists, view compliance metrics | Compliance Auditor |
-| 📈 **Financial Analyst** | Dashboard, Fuel & Expenses, Reports | Financial focus | Export CSV, Add Fuel/Expenses | Financial Auditor |
-| 🚚 **Driver** | Dashboard, My Trips | Driver portal | None (Read-only own trips) | Driver Portal User |
+The system recently underwent a major architectural refactor to eliminate monolithic structures. The backend now executes optimized, isolated SQLite queries per role using a strict `switch(req.user.roleName)` block. On the frontend, `Dashboard.jsx` acts as a pure router, delegating rendering to isolated sub-components (e.g., `FleetManagerDash`, `DriverDash`). 
 
----
+A robust foreign-key implementation links authentication profiles (`users` table) directly to operational profiles (`drivers` table), ensuring complete data integrity and preventing unauthorized mutations.
 
-## 🚦 Demo Accounts (Seeded)
-
-| Role | Email | Password |
-| :--- | :--- | :--- |
-| 👑 **Fleet Manager** | `admin@transitops.com` | `Admin@123` |
-| 🗺️ **Dispatcher** | `dispatcher@transitops.com` | `Dispatch@123` |
-| 🛡️ **Safety Officer** | `safety@transitops.com` | `Safety@123` |
-| 📈 **Financial Analyst** | `finance@transitops.com` | `Finance@123` |
-| 🚚 **Driver** | `alex@transitops.com` | `Driver@123` |
-
----
-
-## 📁 Folder Structure
-
-```text
-Transops/
-├── backend/
-│   ├── controllers/         # Controller actions
-│   ├── middleware/          # JWT Auth and RBAC middleware
-│   ├── routes/              # Express route definitions
-│   │   ├── auth.js          # Authentication endpoints
-│   │   ├── dashboard.js     # KPIs & CSV Exports
-│   │   ├── drivers.js       # Drivers & Safety logs
-│   │   ├── finance.js       # Fuel & Expenses
-│   │   ├── maintenance.js   # Shop & Repair logs
-│   │   ├── trips.js         # Dispatch workflows
-│   │   └── vehicles.js      # Vehicle Registry
-│   ├── db.js                # SQLite init, WAL settings, indexing
-│   ├── seed.js              # Deterministic database seeder script
-│   └── server.js            # Express application bootstrapper
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Reusable UI components & layouts
-│   │   │   ├── layout/      # Sidebar and top-bar layout
-│   │   │   └── ui/          # Standardized UI elements (KPICard, DataTable, etc.)
-│   │   ├── hooks/           # useAuth and useTheme hook states
-│   │   ├── pages/           # Application views (Dashboard, Vehicles, etc.)
-│   │   ├── services/        # Axios interceptors and APIs
-│   │   ├── App.jsx          # Route mapping and Route Guards
-│   │   ├── index.css        # FundFlow gradient backgrounds & glassy CSS tokens
-│   │   └── main.jsx         # App entry point
-```
-
----
-
-## 🔌 API Endpoints Summary
-
-### Authentication
-- `POST /api/auth/login` - Authenticates user, issues 24h JWT.
-- `GET /api/auth/me` - Verifies token validity.
-
-### Vehicles
-- `GET /api/vehicles` - Lists all vehicles.
-- `GET /api/vehicles/available` - Lists dispatch-ready vehicles.
-- `POST /api/vehicles` - Add new vehicle (Fleet Manager).
-- `PUT /api/vehicles/:id` - Update vehicle specifications (Fleet Manager).
-- `DELETE /api/vehicles/:id` - Remove vehicle from database (Fleet Manager).
-
-### Drivers
-- `GET /api/drivers` - Lists all drivers & safety scores.
-- `GET /api/drivers/available` - Lists dispatch-ready, licensed drivers.
-- `POST /api/drivers` - Add new driver (Fleet Manager).
-- `PUT /api/drivers/:id` - Update driver stats (Fleet Manager).
-- `DELETE /api/drivers/:id` - Delete driver profile (Fleet Manager).
-
-### Trips
-- `GET /api/trips` - Lists trips (filtered for Drivers).
-- `POST /api/trips` - Creates a pending trip.
-- `PUT /api/trips/:id/dispatch` - Transition trip to 'On Trip' status.
-- `PUT /api/trips/:id/complete` - Completes trip, updates distance/fuel metrics.
-- `PUT /api/trips/:id/cancel` - Cancels trip, releases drivers/vehicles.
-
-### Maintenance
-- `GET /api/maintenance` - Lists shop logs.
-- `POST /api/maintenance` - Send vehicle to shop (sets vehicle status to 'In Shop').
-- `PUT /api/maintenance/:id/close` - Close log, release vehicle.
-
----
-
-## 🚀 Installation & Running
+## Getting Started
 
 ### Prerequisites
-- Node.js (v18.x or v20.x recommended)
-- Git
+- Node.js (v18+)
+- npm
 
-### Setup & Launch
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/aucxtix/dummy-trans.git
-   cd dummy-trans
-   ```
-
-2. **Backend Setup:**
+### 1. Backend Setup
+1. Navigate to the backend directory:
    ```bash
    cd backend
-   npm install
-   # Seed the database
-   npm run seed
-   # Start the Express Server
-   npm start
    ```
-   *Note: Server starts at `http://localhost:8000`.*
-
-3. **Frontend Setup:**
+2. Install dependencies:
    ```bash
-   cd ../frontend
    npm install
-   # Build the Production Bundle
-   npm run build
-   # Run the Vite Dev Server
+   ```
+3. Create a `.env` file in the backend folder:
+   ```env
+   PORT=8000
+   JWT_SECRET=your_super_secret_jwt_key
+   JWT_EXPIRES_IN=24h
+   NODE_ENV=development
+   ```
+4. Seed the SQLite database:
+   ```bash
+   npm run seed
+   ```
+5. Start the backend server:
+   ```bash
    npm run dev
    ```
-   *Note: Client starts at `http://localhost:5173`.*
 
----
+### 2. Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+4. Open the application in your browser at `http://localhost:5173`.
 
-## 📜 License
+## Default Test Accounts (Passwords are Role@123)
+- **Fleet Manager:** admin@transitops.com (Admin@123)
+- **Dispatcher:** dispatcher@transitops.com (Dispatch@123)
+- **Driver:** alex@transitops.com (Driver@123)
+- **Finance:** finance@transitops.com (Finance@123)
+- **Safety:** safety@transitops.com (Safety@123)
 
-TransitOps is released under the **MIT License**.
+## Security Enhancements
+- Passwords are strictly hashed via `bcryptjs`.
+- All routes are protected by the `authenticate` JWT middleware.
+- Specific actions (like dispatching trips) utilize `requireRole` middleware to block unauthorized HTTP requests.
+- The `drivers` schema enforces a strict `user_id` foreign key mapped to the authentication layer to prevent context-switching vulnerabilities.
+
+## License
+MIT License.
