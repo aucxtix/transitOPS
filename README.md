@@ -146,6 +146,28 @@ To ensure maximum profitability and operational efficiency, TransitOps includes 
 
 ---
 
+## 📈 Comprehensive Enterprise Reporting
+
+The Reports module acts as the analytical brain of TransitOps, translating raw SQL data into actionable insights through dynamic, interactive data visualization.
+
+- Distance vs Fuel consumption benchmarking
+- Real-time fleet utilization analytics
+- Driver safety ranking metrics
+- Area charts for fuel consumption over time
+
+<p align="center">
+  <img src="./screenshot/report-dashboard.png" width="900" alt="Reports Dashboard">
+</p>
+
+### 📥 One-Click Data Export
+Generate highly structured, formatted CSV dataset exports for offline review and legacy system integration in milliseconds.
+
+<p align="center">
+  <img src="./screenshot/csv-report.png" width="900" alt="CSV Export Report">
+</p>
+
+---
+
 ## 📊 Role-Based Experience
 
 Every user experiences a different application based on organizational responsibilities.
