@@ -39,20 +39,19 @@ cd transitOPS
 ```
 
 ### 2. Setup the Backend
-\`\`\`bash
+```bash
 cd backend
 npm install
 npm run seed  # Generates the SQLite database with rich dummy data
 npm start     # Starts the API on http://localhost:8000
-\`\`\`
-
+```
 ### 3. Setup the Frontend
 Open a new terminal window:
-\`\`\`bash
+```bash
 cd frontend
 npm install
 npm run dev   # Starts the Vite dev server on http://localhost:5173
-\`\`\`
+```
 
 ### 4. Demo Credentials
 Use these credentials to test the various Role-Based Access controls. Password for all accounts is: **`Admin@123`** (or relevant suffix).
