@@ -26,7 +26,7 @@ TransitOps is a highly scalable, full-stack logistics and fleet management platf
 - **Backend:** Node.js, Express.js, `better-sqlite3` (synchronous high-performance SQLite).
 - **Security:** `jsonwebtoken`, `bcryptjs`, `express-rate-limit`, `helmet`, `cors`.
 
----
+
 
 ## 🚀 Quick Start / Installation
 
