@@ -1,44 +1,119 @@
-# Transops
+# TransitOps: Smart Transport Operations Platform
 
-Transops is a comprehensive, full-stack transit and transportation operations management platform. Built with a modern tech stack, it provides fleet managers and operators with the tools they need to track, manage, and optimize their daily transportation workflows.
+TransitOps is an enterprise-grade Smart Transport Operations Platform built as a robust, secure, and demo-ready full-stack application. It features a complete fleet management, driver safety, and trip scheduling operations system backed by a strict 4-layer Role-Based Access Control (RBAC) security paradigm and a modern visual aesthetic inspired by fintech SaaS interfaces (lavender-tinged backgrounds, large rounded borders, and glassmorphism elements).
 
-## 🚀 Features
+---
 
-- **Fleet Management:** Track and manage vehicles, their statuses, and assignments.
-- **Driver Management:** Keep records of drivers, schedules, and performance metrics.
-- **Trip Tracking:** Monitor active, upcoming, and completed trips.
-- **Maintenance Logs:** Schedule, track, and log vehicle maintenance to ensure safety and reliability.
-- **System Logs & Reports:** Generate comprehensive reports and view system logs for actionable insights.
-- **Secure Authentication:** JWT-based authentication for secure access to the dashboard.
+## 🛠️ Technology Stack
 
-## 🛠️ Tech Stack
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend** | React 19, Vite, Tailwind CSS v4, Recharts, Lucide React, React Router Dom, Axios |
+| **Backend** | Node.js, Express.js, JWT (`jsonwebtoken`), `bcryptjs`, `zod` validation, `helmet`, `cors`, `morgan`, `express-rate-limit` |
+| **Database** | SQLite via `better-sqlite3` (single-file, WAL mode enabled, foreign key constraints active) |
 
-### Frontend
-- **React 19** & **Vite** for a fast, modern user interface.
-- **Tailwind CSS v4** for highly responsive, utility-first styling.
-- **Recharts** for interactive data visualization and reporting.
-- **Lucide React** for beautiful, consistent iconography.
+---
 
-### Backend
-- **Node.js** & **Express** for a robust, scalable REST API.
-- **SQLite (better-sqlite3)** for high-performance, lightweight persistent storage.
-- **JWT (JSON Web Tokens)** & **Bcrypt** for secure user authentication and password hashing.
+## 🔒 4-Layer RBAC Matrix
 
-## 📦 Project Structure
+Security is enforced at four independent levels (Navigation, Frontend Routes, Backend API Middleware, Controller Validation).
+
+| Role | Navigation & Routes | Page Access | Write Actions Allowed | API Privilege Level |
+| :--- | :--- | :--- | :--- | :--- |
+| 👑 **Fleet Manager** | Full access | All pages | Create/Edit/Delete Vehicles & Drivers, Dispatch/Complete Trips, Open/Close Maintenance, Add Fuel/Expenses, Export CSV | Superuser |
+| 🗺️ **Dispatcher** | Dashboard, Trips, Vehicles, Drivers | Operations focus | Dispatch, Complete, & Cancel Trips | Operations Manager |
+| 🛡️ **Safety Officer** | Dashboard, Drivers, Maintenance, Reports | Compliance focus | Read-only access to lists, view compliance metrics | Compliance Auditor |
+| 📈 **Financial Analyst** | Dashboard, Fuel & Expenses, Reports | Financial focus | Export CSV, Add Fuel/Expenses | Financial Auditor |
+| 🚚 **Driver** | Dashboard, My Trips | Driver portal | None (Read-only own trips) | Driver Portal User |
+
+---
+
+## 🚦 Demo Accounts (Seeded)
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| 👑 **Fleet Manager** | `admin@transitops.com` | `Admin@123` |
+| 🗺️ **Dispatcher** | `dispatcher@transitops.com` | `Dispatch@123` |
+| 🛡️ **Safety Officer** | `safety@transitops.com` | `Safety@123` |
+| 📈 **Financial Analyst** | `finance@transitops.com` | `Finance@123` |
+| 🚚 **Driver** | `alex@transitops.com` | `Driver@123` |
+
+---
+
+## 📁 Folder Structure
 
 ```text
 Transops/
-├── frontend/       # React frontend application
-└── backend/        # Express backend server with SQLite
+├── backend/
+│   ├── controllers/         # Controller actions
+│   ├── middleware/          # JWT Auth and RBAC middleware
+│   ├── routes/              # Express route definitions
+│   │   ├── auth.js          # Authentication endpoints
+│   │   ├── dashboard.js     # KPIs & CSV Exports
+│   │   ├── drivers.js       # Drivers & Safety logs
+│   │   ├── finance.js       # Fuel & Expenses
+│   │   ├── maintenance.js   # Shop & Repair logs
+│   │   ├── trips.js         # Dispatch workflows
+│   │   └── vehicles.js      # Vehicle Registry
+│   ├── db.js                # SQLite init, WAL settings, indexing
+│   ├── seed.js              # Deterministic database seeder script
+│   └── server.js            # Express application bootstrapper
+├── frontend/
+│   ├── src/
+│   │   ├── components/      # Reusable UI components & layouts
+│   │   │   ├── layout/      # Sidebar and top-bar layout
+│   │   │   └── ui/          # Standardized UI elements (KPICard, DataTable, etc.)
+│   │   ├── hooks/           # useAuth and useTheme hook states
+│   │   ├── pages/           # Application views (Dashboard, Vehicles, etc.)
+│   │   ├── services/        # Axios interceptors and APIs
+│   │   ├── App.jsx          # Route mapping and Route Guards
+│   │   ├── index.css        # FundFlow gradient backgrounds & glassy CSS tokens
+│   │   └── main.jsx         # App entry point
 ```
 
-## 🚦 Getting Started
+---
+
+## 🔌 API Endpoints Summary
+
+### Authentication
+- `POST /api/auth/login` - Authenticates user, issues 24h JWT.
+- `GET /api/auth/me` - Verifies token validity.
+
+### Vehicles
+- `GET /api/vehicles` - Lists all vehicles.
+- `GET /api/vehicles/available` - Lists dispatch-ready vehicles.
+- `POST /api/vehicles` - Add new vehicle (Fleet Manager).
+- `PUT /api/vehicles/:id` - Update vehicle specifications (Fleet Manager).
+- `DELETE /api/vehicles/:id` - Remove vehicle from database (Fleet Manager).
+
+### Drivers
+- `GET /api/drivers` - Lists all drivers & safety scores.
+- `GET /api/drivers/available` - Lists dispatch-ready, licensed drivers.
+- `POST /api/drivers` - Add new driver (Fleet Manager).
+- `PUT /api/drivers/:id` - Update driver stats (Fleet Manager).
+- `DELETE /api/drivers/:id` - Delete driver profile (Fleet Manager).
+
+### Trips
+- `GET /api/trips` - Lists trips (filtered for Drivers).
+- `POST /api/trips` - Creates a pending trip.
+- `PUT /api/trips/:id/dispatch` - Transition trip to 'On Trip' status.
+- `PUT /api/trips/:id/complete` - Completes trip, updates distance/fuel metrics.
+- `PUT /api/trips/:id/cancel` - Cancels trip, releases drivers/vehicles.
+
+### Maintenance
+- `GET /api/maintenance` - Lists shop logs.
+- `POST /api/maintenance` - Send vehicle to shop (sets vehicle status to 'In Shop').
+- `PUT /api/maintenance/:id/close` - Close log, release vehicle.
+
+---
+
+## 🚀 Installation & Running
 
 ### Prerequisites
-- Node.js (v18 or higher recommended)
-- npm or yarn
+- Node.js (v18.x or v20.x recommended)
+- Git
 
-### Setup Instructions
+### Setup & Launch
 
 1. **Clone the repository:**
    ```bash
@@ -50,15 +125,26 @@ Transops/
    ```bash
    cd backend
    npm install
-   # Configure your .env file if needed
-   npm run dev
+   # Seed the database
+   npm run seed
+   # Start the Express Server
+   npm start
    ```
+   *Note: Server starts at `http://localhost:8000`.*
 
 3. **Frontend Setup:**
    ```bash
-   cd frontend
+   cd ../frontend
    npm install
+   # Build the Production Bundle
+   npm run build
+   # Run the Vite Dev Server
    npm run dev
    ```
+   *Note: Client starts at `http://localhost:5173`.*
 
-4. Open your browser and navigate to the local server address provided by Vite (usually `http://localhost:5173`).
+---
+
+## 📜 License
+
+TransitOps is released under the **MIT License**.
