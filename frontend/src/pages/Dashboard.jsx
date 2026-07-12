@@ -174,7 +174,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="font-semibold text-sm">{trip.vehicle_name || trip.registration_number || 'Trip ' + trip.id}</p>
-                    <p className="text-xs text-foreground/50">{trip.source.split(',')[0]} → {trip.destination.split(',')[0]}</p>
+                    <p className="text-xs text-foreground/50">{trip.source?.split(',')[0] || 'Unknown'} → {trip.destination?.split(',')[0] || 'Unknown'}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">

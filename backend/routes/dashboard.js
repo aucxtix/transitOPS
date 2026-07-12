@@ -65,7 +65,7 @@ router.get('/reports', requireRole(ALL_ROLES), (req, res) => {
     // For charting purposes, get completed trips aggregated by month (or recent trips)
     // Simplified: Just returning all completed trips for Recharts to process.
     const completedTrips = db.prepare(`
-      SELECT t.id, t.actual_distance, t.fuel_consumed, t.created_at, v.registration_number
+      SELECT t.id, t.source, t.destination, t.actual_distance, t.fuel_consumed, t.created_at, v.registration_number
       FROM trips t
       JOIN vehicles v ON t.vehicle_id = v.id
       WHERE t.status = 'Completed'
