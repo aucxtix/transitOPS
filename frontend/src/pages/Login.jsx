@@ -19,20 +19,28 @@ const Login = () => {
   const { login, loading } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleLogin = async (e, overrideEmail, overridePassword) => {
     e?.preventDefault();
     setError('');
-    const { success, error: loginError } = await login(email, password);
+    const loginEmail = overrideEmail ?? email;
+    const loginPassword = overridePassword ?? password;
+    if (!loginEmail || !loginPassword) {
+      setError('Please enter your email and password.');
+      return;
+    }
+    const { success, error: loginError } = await login(loginEmail, loginPassword);
     if (success) {
       navigate('/');
     } else {
-      setError(loginError || 'Failed to login');
+      setError(loginError || 'Login failed. Check your credentials and try again.');
     }
   };
 
   const handleDemoClick = (account) => {
     setEmail(account.email);
     setPassword(account.pass);
+    // Directly call login with the account values — avoids React state timing race
+    handleLogin(null, account.email, account.pass);
   };
 
   return (
