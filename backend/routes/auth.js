@@ -4,16 +4,25 @@ import jwt from 'jsonwebtoken';
 import db from '../db.js';
 import { authenticate } from '../middleware/auth.js';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
+import { config } from '../config.js'; // Security Fix: Centralized config
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'transitops-super-secret';
+
+// Security Fix: Strict rate limiter for login
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 failed login attempts
+  message: { error: 'Too many login attempts from this IP, please try again after 15 minutes' }
+});
 
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1)
 });
 
-router.post('/login', (req, res) => {
+// Security & Performance Fix: Applied loginLimiter and made route fully async
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = loginSchema.parse(req.body);
     
@@ -28,15 +37,16 @@ router.post('/login', (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    const isValid = bcrypt.compareSync(password, user.password);
+    // Performance Fix: Replaced blocking bcrypt.compareSync with async bcrypt.compare
+    const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const token = jwt.sign(
       { id: user.id, email: user.email, roleId: user.role_id, roleName: user.roleName, name: user.name },
-      JWT_SECRET,
-      { expiresIn: '24h' }
+      config.JWT_SECRET, // Strictly imported from config
+      { expiresIn: config.JWT_EXPIRES_IN }
     );
 
     res.json({
@@ -50,8 +60,10 @@ router.post('/login', (req, res) => {
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: err.errors[0].message });
+      // Fix: Return the full array of validation errors for frontend mapping
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
     }
+    console.error(err);
     res.status(500).json({ error: 'Login failed' });
   }
 });

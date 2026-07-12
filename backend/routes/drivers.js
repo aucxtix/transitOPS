@@ -19,9 +19,6 @@ router.use(authenticate);
 
 // Get available drivers
 router.get('/available', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
   try {
     // Drivers with expired licenses or status Suspended must never appear in dispatch dropdowns.
     const query = `
@@ -36,10 +33,7 @@ router.get('/available', requireRole(['Fleet Manager', 'Dispatcher']), (req, res
   }
 });
 
-router.get('/', (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
+router.get('/', requireRole(['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst']), (req, res) => {
   try {
     const drivers = db.prepare('SELECT * FROM drivers ORDER BY created_at DESC').all();
     res.json(drivers);
@@ -49,7 +43,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', requireRole(['Fleet Manager']), (req, res) => {
-  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const data = driverSchema.parse(req.body);
     const existing = db.prepare('SELECT * FROM drivers WHERE license_number = ?').get(data.license_number);
@@ -76,7 +69,6 @@ router.post('/', requireRole(['Fleet Manager']), (req, res) => {
 });
 
 router.put('/:id', requireRole(['Fleet Manager']), (req, res) => {
-  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const { id } = req.params;
     const data = driverSchema.parse(req.body);
@@ -108,7 +100,6 @@ router.put('/:id', requireRole(['Fleet Manager']), (req, res) => {
 });
 
 router.delete('/:id', requireRole(['Fleet Manager']), (req, res) => {
-  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     db.prepare('DELETE FROM drivers WHERE id = ?').run(req.params.id);
     res.json({ success: true });

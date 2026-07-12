@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'transitops-super-secret';
+import { config } from '../config.js'; // Security Fix: Load from centralized config
 
 export const authenticate = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -9,7 +8,8 @@ export const authenticate = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    // Security Fix: Using validated configuration secret
+    const decoded = jwt.verify(token, config.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (err) {

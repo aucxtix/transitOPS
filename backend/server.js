@@ -1,3 +1,4 @@
+import { config } from './config.js'; // MUST be at the very top
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -29,8 +30,13 @@ const allowedOrigins = [
 ];
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
+    // Security Fix: Reject requests with no origin unless in development
+    if (!origin) {
+      if (config.NODE_ENV === 'development') {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS: Requests with no origin are strictly forbidden in production'));
+    }
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS: Origin ${origin} not allowed`));
   },
@@ -69,15 +75,24 @@ app.use('/api/*', (req, res) => {
   res.status(404).json({ error: `Endpoint not found: ${req.method} ${req.path}` });
 });
 
-// Error Handling Middleware
+// Security Fix: Enhanced Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+  const status = err.status || 500;
+  
+  if (status === 500) {
+    // Log the detailed error internally for debugging
+    console.error('🔥 [500 Internal Error]:', err.stack);
+    // Return generic message to client to prevent leaking sensitive info, DB schemas, or SQL syntax
+    return res.status(500).json({ error: 'An unexpected server error occurred.' });
+  }
+
+  // Pass through client-side errors (400, 401, 403, 404, etc.)
+  res.status(status).json({ error: err.message || 'Error occurred' });
 });
 
-const PORT = process.env.PORT || 8000;
+const PORT = config.PORT;
 const server = app.listen(PORT, () => {
-  console.log(`✅ TransitOps API running on http://localhost:${PORT}`);
+  console.log(`✅ TransitOps API running on http://localhost:${PORT} in ${config.NODE_ENV} mode`);
 });
 
 server.on('error', (err) => {

@@ -22,32 +22,23 @@ const completeTripSchema = z.object({
 
 router.use(authenticate);
 
-router.get('/', (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
+router.get('/', requireRole(['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver']), (req, res) => {
   try {
     let query = `
       SELECT t.*, v.registration_number, v.name_model as vehicle_name, d.name as driver_name 
       FROM trips t
       JOIN vehicles v ON t.vehicle_id = v.id
       JOIN drivers d ON t.driver_id = d.id
-      ORDER BY t.created_at DESC
     `;
     let params = [];
 
-    // If Driver, only show own trips
+    // FIX: Look up driver profile properly via user_id foreign key
     if (req.user.roleName === 'Driver') {
-      query = `
-        SELECT t.*, v.registration_number, v.name_model as vehicle_name, d.name as driver_name 
-        FROM trips t
-        JOIN vehicles v ON t.vehicle_id = v.id
-        JOIN drivers d ON t.driver_id = d.id
-        WHERE d.email = ?
-        ORDER BY t.created_at DESC
-      `;
-      params.push(req.user.email);
+      query += ` WHERE d.user_id = ?`;
+      params.push(req.user.id);
     }
+
+    query += ` ORDER BY t.created_at DESC`;
 
     const trips = db.prepare(query).all(...params);
     res.json(trips);
@@ -57,9 +48,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
   try {
     const data = tripSchema.parse(req.body);
     
@@ -93,11 +81,8 @@ router.post('/', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
   }
 });
 
-// Dispatch Trip
-router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
+// Dispatch / Start Trip
+router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher', 'Driver']), (req, res) => {
   const { id } = req.params;
   
   const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);
@@ -109,6 +94,13 @@ router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher']), (req, 
 
   if (vehicle.status !== 'Available') return res.status(400).json({ error: 'Vehicle is no longer available' });
   if (driver.status !== 'Available') return res.status(400).json({ error: 'Driver is no longer available' });
+
+  // If driver is starting their own trip, verify ownership
+  if (req.user.roleName === 'Driver') {
+     if (driver.user_id !== req.user.id) {
+       return res.status(403).json({ error: 'Forbidden: You can only start your own assigned trips' });
+     }
+  }
 
   const dispatchTransaction = db.transaction(() => {
     db.prepare("UPDATE trips SET status = 'On Trip', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(id);
@@ -126,10 +118,7 @@ router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher']), (req, 
 });
 
 // Complete Trip
-router.put('/:id/complete', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
+router.put('/:id/complete', requireRole(['Fleet Manager', 'Dispatcher', 'Driver']), (req, res) => {
   const { id } = req.params;
   
   try {
@@ -138,6 +127,14 @@ router.put('/:id/complete', requireRole(['Fleet Manager', 'Dispatcher']), (req, 
     
     if (!trip) return res.status(404).json({ error: 'Trip not found' });
     if (trip.status !== 'On Trip') return res.status(400).json({ error: 'Only dispatched trips can be completed' });
+
+    // If driver is completing their own trip, verify ownership
+    if (req.user.roleName === 'Driver') {
+       const driver = db.prepare('SELECT * FROM drivers WHERE id = ?').get(trip.driver_id);
+       if (driver.user_id !== req.user.id) {
+         return res.status(403).json({ error: 'Forbidden: You can only complete your own assigned trips' });
+       }
+    }
 
     const completeTransaction = db.transaction(() => {
       db.prepare(`
@@ -164,9 +161,6 @@ router.put('/:id/complete', requireRole(['Fleet Manager', 'Dispatcher']), (req, 
 
 // Cancel Trip
 router.put('/:id/cancel', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
-  if (!['Fleet Manager', 'Dispatcher'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
   const { id } = req.params;
   
   const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);

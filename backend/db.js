@@ -44,6 +44,7 @@ export function initDb() {
 
     CREATE TABLE IF NOT EXISTS drivers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER UNIQUE,
       name TEXT NOT NULL,
       license_number TEXT UNIQUE NOT NULL,
       license_category TEXT NOT NULL,
@@ -52,7 +53,8 @@ export function initDb() {
       safety_score REAL DEFAULT 100,
       status TEXT NOT NULL DEFAULT 'Available',
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users (id)
     );
 
     CREATE TABLE IF NOT EXISTS trips (

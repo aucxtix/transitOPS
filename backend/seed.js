@@ -59,16 +59,16 @@ const seed = async () => {
 
   console.log('Seeding drivers...');
   const insertDriver = db.prepare(`
-    INSERT INTO drivers (id, name, license_number, license_category, license_expiry_date, contact_number, safety_score, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO drivers (id, user_id, name, license_number, license_category, license_expiry_date, contact_number, safety_score, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   const drivers = [
-    { id: 1, name: 'Alex', license: 'LIC-1001', cat: 'Heavy', exp: '2028-12-31', contact: '555-0101', score: 98, status: 'Available' },
-    { id: 2, name: 'Sarah Connor', license: 'LIC-1002', cat: 'Medium', exp: '2027-05-15', contact: '555-0102', score: 85, status: 'On Trip' },
-    { id: 3, name: 'John Doe', license: 'LIC-1003', cat: 'Light', exp: '2024-11-30', contact: '555-0103', score: 70, status: 'Suspended' },
-    { id: 4, name: 'Jane Smith', license: 'LIC-1004', cat: 'All', exp: '2026-08-20', contact: '555-0104', score: 92, status: 'Available' }
+    { id: 1, user_id: 5, name: 'Alex', license: 'LIC-1001', cat: 'Heavy', exp: '2028-12-31', contact: '555-0101', score: 98, status: 'Available' },
+    { id: 2, user_id: null, name: 'Sarah Connor', license: 'LIC-1002', cat: 'Medium', exp: '2027-05-15', contact: '555-0102', score: 85, status: 'On Trip' },
+    { id: 3, user_id: null, name: 'John Doe', license: 'LIC-1003', cat: 'Light', exp: '2024-11-30', contact: '555-0103', score: 70, status: 'Suspended' },
+    { id: 4, user_id: null, name: 'Jane Smith', license: 'LIC-1004', cat: 'All', exp: '2026-08-20', contact: '555-0104', score: 92, status: 'Available' }
   ];
-  for (const d of drivers) insertDriver.run(d.id, d.name, d.license, d.cat, d.exp, d.contact, d.score, d.status);
+  for (const d of drivers) insertDriver.run(d.id, d.user_id, d.name, d.license, d.cat, d.exp, d.contact, d.score, d.status);
 
   console.log('Seeding trips and logs...');
   // 2 completed trips

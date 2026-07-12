@@ -6,9 +6,6 @@ import { z } from 'zod';
 const router = express.Router();
 
 router.use(authenticate);
-// Financial routes require higher roles or Fleet Manager
-// Let's assume Fleet Manager, Financial Analyst for read.
-// Fleet Manager for write.
 
 const fuelSchema = z.object({
   vehicle_id: z.number().int().positive(),
@@ -23,15 +20,11 @@ const expenseSchema = z.object({
   type: z.string().min(1),
   quantity: z.number().optional(),
   amount: z.number().positive(),
-  date: z.string().min(1),
-  status: z.string().optional()
+  date: z.string().min(1)
 });
 
 // Fuel Logs
 router.get('/fuel', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
-  if (!['Fleet Manager', 'Financial Analyst'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
   try {
     const logs = db.prepare(`
       SELECT f.*, v.registration_number, v.name_model 
@@ -45,8 +38,7 @@ router.get('/fuel', requireRole(['Fleet Manager', 'Financial Analyst']), (req, r
   }
 });
 
-router.post('/fuel', requireRole(['Fleet Manager']), (req, res) => {
-  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+router.post('/fuel', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
   try {
     const data = fuelSchema.parse(req.body);
     const stmt = db.prepare(`
@@ -64,9 +56,6 @@ router.post('/fuel', requireRole(['Fleet Manager']), (req, res) => {
 
 // Expenses
 router.get('/expenses', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
-  if (!['Fleet Manager', 'Financial Analyst'].includes(req.user.roleName)) {
-    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
-  }
   try {
     const expenses = db.prepare(`
       SELECT e.*, v.registration_number, v.name_model 
@@ -80,23 +69,51 @@ router.get('/expenses', requireRole(['Fleet Manager', 'Financial Analyst']), (re
   }
 });
 
-router.post('/expenses', requireRole(['Fleet Manager']), (req, res) => {
-  if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+router.post('/expenses', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
   try {
     const data = expenseSchema.parse(req.body);
     const stmt = db.prepare(`
       INSERT INTO expenses (vehicle_id, type, quantity, amount, date, status)
-      VALUES (?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, 'Pending')
     `);
     const info = stmt.run(
       data.vehicle_id || null, data.type, data.quantity || null, 
-      data.amount, data.date, data.status || 'Paid'
+      data.amount, data.date
     );
     const newExpense = db.prepare('SELECT * FROM expenses WHERE id = ?').get(info.lastInsertRowid);
     res.status(201).json(newExpense);
   } catch (err) {
     if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors[0].message });
     res.status(500).json({ error: 'Failed to create expense' });
+  }
+});
+
+// Finance Approval Workflow
+router.put('/expenses/:id/approve', requireRole(['Fleet Manager']), (req, res) => {
+  try {
+    const { id } = req.params;
+    const expense = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id);
+    if (!expense) return res.status(404).json({ error: 'Expense not found' });
+    if (expense.status !== 'Pending') return res.status(400).json({ error: 'Expense is not pending' });
+
+    db.prepare("UPDATE expenses SET status = 'Approved' WHERE id = ?").run(id);
+    res.json({ success: true, status: 'Approved' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to approve expense' });
+  }
+});
+
+router.put('/expenses/:id/reject', requireRole(['Fleet Manager']), (req, res) => {
+  try {
+    const { id } = req.params;
+    const expense = db.prepare('SELECT * FROM expenses WHERE id = ?').get(id);
+    if (!expense) return res.status(404).json({ error: 'Expense not found' });
+    if (expense.status !== 'Pending') return res.status(400).json({ error: 'Expense is not pending' });
+
+    db.prepare("UPDATE expenses SET status = 'Rejected' WHERE id = ?").run(id);
+    res.json({ success: true, status: 'Rejected' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to reject expense' });
   }
 });
 
