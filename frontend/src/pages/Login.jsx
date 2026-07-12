@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Shield, Truck, Users, Activity, Banknote, Map } from 'lucide-react';
+import { Shield, Truck, Users, Activity, Banknote, Map, Hexagon } from 'lucide-react';
 
 const demoAccounts = [
-  { role: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', icon: Shield, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  { role: 'Dispatcher', email: 'dispatcher@transitops.com', pass: 'Dispatch@123', icon: Map, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { role: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
+  { role: 'Dispatcher', email: 'dispatcher@transitops.com', pass: 'Dispatch@123', icon: Map, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
   { role: 'Safety Officer', email: 'safety@transitops.com', pass: 'Safety@123', icon: Activity, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-  { role: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', icon: Banknote, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  { role: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', icon: Banknote, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
   { role: 'Driver', email: 'alex@transitops.com', pass: 'Driver@123', icon: Truck, color: 'text-slate-500', bg: 'bg-slate-500/10' },
 ];
 
@@ -35,42 +35,52 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 selection:bg-primary/20">
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-4 lg:p-8 relative overflow-hidden">
+      
+      {/* Decorative blurred backgrounds */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[50%] bg-gradient-violet rounded-full opacity-10 blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[50%] bg-gradient-blue rounded-full opacity-10 blur-[100px] pointer-events-none"></div>
+
+      <div className="w-full max-w-[1100px] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
         
         {/* Left Side: Login Form */}
-        <div className="bg-card border border-border p-8 rounded-2xl shadow-xl shadow-black/5">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold tracking-tight mb-2">TransitOps.</h1>
-            <p className="text-foreground/60">Sign in to your fleet management portal</p>
+        <div className="glass-panel p-10 lg:p-12 rounded-[2.5rem] shadow-float border border-white/60 dark:border-white/10 relative overflow-hidden">
+          <div className="absolute inset-0 bg-white/40 dark:bg-black/20 backdrop-blur-md z-0"></div>
+          
+          <div className="relative z-10 mb-10 text-center lg:text-left">
+            <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-primary/10 text-primary mb-6 shadow-sm">
+              <Hexagon size={32} className="fill-primary/20" />
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight mb-3 text-foreground">Welcome Back</h1>
+            <p className="text-foreground/60 font-medium">Sign in to your fleet management portal.</p>
           </div>
 
-          <form onSubmit={handleLogin} className="flex flex-col gap-5">
+          <form onSubmit={handleLogin} className="relative z-10 flex flex-col gap-6">
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm font-medium">
+              <div className="px-4 py-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-2xl text-sm font-medium">
                 {error}
               </div>
             )}
             
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">Email address</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold ml-1 text-foreground/80">Email address</label>
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="px-4 py-2.5 bg-background border border-border rounded-lg outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-medium"
+                className="px-5 py-4 bg-white/60 dark:bg-black/30 border border-white/50 dark:border-white/5 rounded-2xl outline-none focus:border-primary/50 focus:bg-white dark:focus:bg-black/50 transition-all font-medium shadow-sm backdrop-blur-sm placeholder:text-foreground/40"
                 placeholder="name@company.com"
                 required
               />
             </div>
             
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium">Password</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-semibold ml-1 text-foreground/80">Password</label>
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="px-4 py-2.5 bg-background border border-border rounded-lg outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all font-medium"
+                className="px-5 py-4 bg-white/60 dark:bg-black/30 border border-white/50 dark:border-white/5 rounded-2xl outline-none focus:border-primary/50 focus:bg-white dark:focus:bg-black/50 transition-all font-medium shadow-sm backdrop-blur-sm placeholder:text-foreground/40"
                 placeholder="••••••••"
                 required
               />
@@ -79,7 +89,7 @@ const Login = () => {
             <button 
               type="submit" 
               disabled={loading || !email || !password}
-              className="mt-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary/20"
+              className="mt-4 pill-button pill-button-dark py-4 text-base shadow-float hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed w-full"
             >
               {loading ? 'Authenticating...' : 'Sign In'}
             </button>
@@ -87,27 +97,28 @@ const Login = () => {
         </div>
 
         {/* Right Side: Demo Accounts */}
-        <div className="flex flex-col gap-4">
-          <div>
-            <h2 className="text-lg font-semibold tracking-tight">Demo Accounts</h2>
-            <p className="text-sm text-foreground/60 mb-4">Click any account to autofill credentials instantly.</p>
+        <div className="flex flex-col">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold tracking-tight mb-2">Demo Roles</h2>
+            <p className="text-foreground/60 font-medium">Select a role to instantly autofill and test the RBAC matrix.</p>
           </div>
           
-          <div className="grid grid-cols-1 gap-3">
+          <div className="grid grid-cols-1 gap-4">
             {demoAccounts.map((account) => {
               const Icon = account.icon;
               return (
                 <button
                   key={account.role}
                   onClick={() => handleDemoClick(account)}
-                  className="flex items-center gap-4 p-4 bg-card border border-border hover:border-primary/50 rounded-xl text-left transition-all hover:shadow-md group"
+                  className="flex items-center gap-5 p-5 glass-panel rounded-3xl border border-white/40 dark:border-white/5 hover:bg-white/60 dark:hover:bg-white/10 text-left transition-all hover:shadow-soft group relative overflow-hidden"
                 >
-                  <div className={`p-3 rounded-lg ${account.bg} ${account.color} transition-transform group-hover:scale-105`}>
-                    <Icon size={20} />
+                  <div className="absolute inset-0 bg-white/20 dark:bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className={`relative z-10 p-4 rounded-[1.25rem] ${account.bg} ${account.color} transition-transform group-hover:scale-105 shadow-sm`}>
+                    <Icon size={24} strokeWidth={2.5} />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">{account.role}</p>
-                    <p className="text-xs text-foreground/60 font-medium">{account.email}</p>
+                  <div className="relative z-10 flex-1">
+                    <p className="font-bold text-base mb-0.5">{account.role}</p>
+                    <p className="text-sm text-foreground/50 font-medium">{account.email}</p>
                   </div>
                 </button>
               );

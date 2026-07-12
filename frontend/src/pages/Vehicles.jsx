@@ -32,7 +32,7 @@ const Vehicles = () => {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <div className="glass-panel rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">

@@ -52,13 +52,13 @@ const Trips = () => {
           <p className="text-foreground/60 text-sm mt-1">Manage, dispatch, and track trips.</p>
         </div>
         {hasRole(['Fleet Manager', 'Dispatcher']) && (
-          <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg font-medium transition-colors shadow-sm">
+          <button className="pill-button pill-button-dark shadow-sm">
             Create Trip
           </button>
         )}
       </div>
 
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm">
+      <div className="glass-panel rounded-3xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="bg-foreground/5 border-b border-border text-foreground/70 font-medium">

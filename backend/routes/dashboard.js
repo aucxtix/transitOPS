@@ -84,4 +84,23 @@ router.get('/reports', requireRole(ALL_ROLES), (req, res) => {
   }
 });
 
+router.get('/export', requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
+  if (!['Fleet Manager', 'Financial Analyst'].includes(req.user.roleName)) {
+    return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
+  }
+  try {
+    const trips = db.prepare(`
+      SELECT t.id, t.source, t.destination, t.cargo_weight, t.planned_distance, t.actual_distance, t.fuel_consumed, t.status, t.created_at, v.registration_number, d.name as driver_name
+      FROM trips t
+      JOIN vehicles v ON t.vehicle_id = v.id
+      JOIN drivers d ON t.driver_id = d.id
+    `).all();
+    
+    // Create a flat array of objects for easy CSV conversion on the frontend
+    res.json({ trips });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate export data' });
+  }
+});
+
 export default router;

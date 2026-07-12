@@ -8,45 +8,129 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
   --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 6px);
+  --radius-sm: calc(var(--radius) - 12px);
+  --radius-full: 9999px;
+  
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0,0,0,0.02);
+  --shadow-float: 0 20px 40px -10px rgba(79, 70, 229, 0.08), 0 1px 5px rgba(0,0,0,0.03);
 }
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --primary: #2563eb;
-  --primary-foreground: #ffffff;
-  --border: #e2e8f0;
-  --radius: 0.75rem;
+  /* Soft pastel lavender/gray base mimicking FundFlow */
+  --background: #EDF0F7; 
+  --foreground: #111827;
+  
+  /* Cards are slightly translucent white to let the background gradient peek through */
+  --card: rgba(255, 255, 255, 0.65);
+  --card-foreground: #111827;
+  
+  --primary: #5A56F6; /* Soft violet */
+  --primary-foreground: #FFFFFF;
+  
+  --border: rgba(255, 255, 255, 0.5); /* Soft borders for glass */
+  --muted: rgba(243, 244, 246, 0.5);
+  --muted-foreground: #6B7280;
+  
+  --accent: #E0E7FF;
+  --accent-foreground: #4338CA;
+  
+  --radius: 1.75rem; /* 28px for large rounded cards */
   
   font-family: 'Inter', system-ui, sans-serif;
 }
 
 .dark {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --card: #1e293b;
-  --card-foreground: #f8fafc;
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --border: #334155;
+  /* Elegant deep space theme, preserving softness */
+  --background: #0B0E14;
+  --foreground: #F9FAFB;
+  --card: rgba(22, 27, 34, 0.65);
+  --card-foreground: #F9FAFB;
+  --primary: #6366F1;
+  --primary-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.05);
+  --muted: rgba(31, 41, 55, 0.5);
+  --muted-foreground: #9CA3AF;
+  --accent: rgba(55, 65, 81, 0.5);
+  --accent-foreground: #E5E7EB;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
+  /* FundFlow subtle background gradients */
+  background-image: 
+    radial-gradient(circle at 10% 0%, rgba(90, 86, 246, 0.08), transparent 40%), 
+    radial-gradient(circle at 90% 80%, rgba(147, 197, 253, 0.1), transparent 40%);
+  background-attachment: fixed;
 }
 
-/* Premium Typography for headers/numbers */
+/* Glassmorphism utilities */
+.glass {
+  background: var(--card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-soft);
+}
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
 .mono-text {
   font-family: 'JetBrains Mono', monospace;
+}
+
+/* Buttons */
+.pill-button {
+  @apply rounded-full px-6 py-2.5 font-medium transition-all duration-300 flex items-center justify-center gap-2;
+}
+.pill-button-dark {
+  @apply bg-foreground text-background hover:opacity-90;
+}
+.pill-button-light {
+  @apply bg-white/80 dark:bg-white/10 text-foreground border border-white/40 dark:border-white/5 hover:bg-white dark:hover:bg-white/20 shadow-sm backdrop-blur-sm;
+}
+
+/* Gradients */
+.bg-gradient-violet {
+  background: linear-gradient(135deg, #7C3AED 0%, #4F46E5 100%);
+}
+.bg-gradient-blue {
+  background: linear-gradient(135deg, #3B82F6 0%, #06B6D4 100%);
+}
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Bubbles for hero card */
+.bubble {
+  border-radius: 50%;
+  position: absolute;
+  filter: blur(20px);
+  opacity: 0.8;
+  z-index: 0;
 }
