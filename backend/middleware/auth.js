@@ -11,7 +11,7 @@ export const authenticate = (req, res, next) => {
     // Security Fix: Using validated configuration secret
     const decoded = jwt.verify(token, config.JWT_SECRET);
     req.user = decoded;
-    next();
+    next(); 
   } catch (err) {
     return res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
