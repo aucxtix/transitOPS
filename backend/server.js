@@ -86,19 +86,22 @@ app.use((err, req, res, next) => {
     return res.status(500).json({ error: 'An unexpected server error occurred.' });
   }
 
-  // Pass through client-side errors (400, 401, 403, 404, etc.)
   res.status(status).json({ error: err.message || 'Error occurred' });
 });
+const PORT = config.PORT || 3000;
 
-const PORT = config.PORT;
-const server = app.listen(PORT, () => {
-  console.log(`✅ TransitOps API running on http://localhost:${PORT} in ${config.NODE_ENV} mode`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  const server = app.listen(PORT, () => {
+    console.log(`✅ TransitOps API running on http://localhost:${PORT} in ${config.NODE_ENV} mode`);
+  });
 
-server.on('error', (err) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(`❌ Port ${PORT} is already in use. Kill the existing process first: kill $(lsof -ti:${PORT})`);
-    process.exit(1);
-  }
-  throw err;
-});
+  server.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${PORT} is already in use. Kill the existing process first: kill $(lsof -ti:${PORT})`);
+      process.exit(1);
+    }
+    throw err;
+  });
+}
+
+export default app;
