@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import api from '../../services/api';
 import { Truck, Navigation, Plus } from 'lucide-react';
 import { MonoNumber } from '../../components/ui/MonoNumber';
+import { cn } from '../../utils/cn';
 
 const EmptyState = ({ message }) => (
   <div className="flex-1 flex items-center justify-center text-foreground/50 h-full p-6 text-center border-2 border-dashed border-border rounded-[1.75rem]">
@@ -14,6 +15,7 @@ const DispatcherDash = ({ data, onRefresh }) => {
   
   const [selectedDriverId, setSelectedDriverId] = useState(availableDrivers?.[0]?.id || null);
   const [dispatchLoading, setDispatchLoading] = useState(false);
+  const [showAllDrivers, setShowAllDrivers] = useState(false);
 
   const handleQuickDispatch = async () => {
     if (!selectedDriverId || availableVehicles.length === 0) return;
@@ -106,15 +108,21 @@ const DispatcherDash = ({ data, onRefresh }) => {
             <h3 className="font-semibold">Quick Dispatch</h3>
           </div>
           <div className="relative z-10 flex items-center gap-3 mb-8">
-             <button className="w-12 h-12 rounded-full border border-dashed border-foreground/30 flex items-center justify-center hover:bg-foreground/5 transition-colors">
-               <Plus size={20} className="text-foreground/50" />
+             <button 
+               onClick={() => setShowAllDrivers(!showAllDrivers)}
+               title={showAllDrivers ? "Show fewer" : "Show all available drivers"}
+               className="w-12 h-12 rounded-full border border-dashed border-foreground/30 flex items-center justify-center hover:bg-foreground/5 transition-colors shrink-0"
+             >
+               <Plus size={20} className={cn("text-foreground/50 transition-transform duration-300", showAllDrivers && "rotate-45")} />
              </button>
-             {availableDrivers && availableDrivers.slice(0, 3).map((driver) => (
-               <div key={driver.id} onClick={() => setSelectedDriverId(driver.id)} className="flex flex-col items-center gap-1 cursor-pointer">
-                  <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${driver.name}&backgroundColor=e2e8f0`} className={`w-12 h-12 rounded-full border-2 transition-all shadow-sm ${selectedDriverId === driver.id ? 'border-primary' : 'border-transparent hover:border-primary/50'}`} alt={driver.name} />
-                  <span className={`text-[10px] font-semibold ${selectedDriverId === driver.id ? 'text-primary' : ''}`}>{driver.name.split(' ')[0]}</span>
-               </div>
-             ))}
+             <div className="flex items-center gap-3 overflow-x-auto pb-2 -mb-2 no-scrollbar">
+               {availableDrivers && availableDrivers.slice(0, showAllDrivers ? undefined : 3).map((driver) => (
+                 <div key={driver.id} onClick={() => setSelectedDriverId(driver.id)} className="flex flex-col items-center gap-1 cursor-pointer shrink-0">
+                    <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=${driver.name}&backgroundColor=e2e8f0`} className={`w-12 h-12 rounded-full border-2 transition-all shadow-sm ${selectedDriverId === driver.id ? 'border-primary' : 'border-transparent hover:border-primary/50'}`} alt={driver.name} />
+                    <span className={`text-[10px] font-semibold ${selectedDriverId === driver.id ? 'text-primary' : ''}`}>{driver.name.split(' ')[0]}</span>
+                 </div>
+               ))}
+             </div>
           </div>
           <div className="relative z-10 flex items-center justify-between">
             <div>
