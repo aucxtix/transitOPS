@@ -30,7 +30,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "fixed md:static inset-y-0 left-0 z-50 h-full flex flex-col py-6 gap-6 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] border-r border-border/10 bg-background/95 backdrop-blur-md shadow-2xl md:shadow-none overflow-x-hidden",
+        "fixed inset-y-0 left-0 z-50 h-full flex flex-col py-6 gap-6 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] border-r border-border/10 bg-background/95 backdrop-blur-md shadow-2xl overflow-x-hidden",
         isMobileOpen ? "translate-x-0 w-72" : "-translate-x-full md:translate-x-0",
         !isMobileOpen && isHovered ? "md:w-72" : "md:w-20"
       )}
