@@ -2,18 +2,25 @@ import express from 'express';
 import db from '../db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
+const vehicleCreationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 50, // Max 50 vehicles per hour
+  message: { error: 'Too many vehicles created from this IP, please try again later' }
+});
+
 const vehicleSchema = z.object({
-  registration_number: z.string().min(1),
-  name_model: z.string().min(1),
-  type: z.string().min(1),
-  max_load_capacity: z.number().positive(),
-  odometer: z.number().min(0).optional(),
-  acquisition_cost: z.number().min(0),
-  status: z.string().optional(),
-  region: z.string().optional()
+  registration_number: z.string().min(1).max(50),
+  name_model: z.string().min(1).max(100),
+  type: z.string().min(1).max(50),
+  max_load_capacity: z.number().positive().max(100000), // Max 100 tons
+  odometer: z.number().min(0).max(10000000).optional(),
+  acquisition_cost: z.number().min(0).max(100000000),
+  status: z.enum(['Available', 'In Shop', 'On Trip', 'Retired']).optional(),
+  region: z.string().max(100).optional()
 });
 
 router.use(authenticate);
@@ -56,7 +63,7 @@ router.get('/', (req, res) => {
   }
 });
 
-router.post('/', requireRole(['Fleet Manager']), (req, res) => {
+router.post('/', requireRole(['Fleet Manager']), vehicleCreationLimiter, (req, res) => {
   if (req.user.roleName !== 'Fleet Manager') return res.status(403).json({ error: 'Forbidden: Unauthorized role' });
   try {
     const data = vehicleSchema.parse(req.body);

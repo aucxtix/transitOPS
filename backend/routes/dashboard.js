@@ -1,8 +1,21 @@
 import express from 'express';
 import db from '../db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
+
+const reportLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30, // 30 reports per 15 minutes
+  message: { error: 'Too many report requests, please try again later' }
+});
+
+const exportLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // 10 exports per 15 minutes
+  message: { error: 'Too many export requests, please try again later' }
+});
 
 // Unified Role-Specific Dashboard Route
 router.get('/', authenticate, async (req, res) => {
@@ -160,7 +173,7 @@ router.get('/', authenticate, async (req, res) => {
   }
 });
 
-router.get('/reports', authenticate, requireRole(['Fleet Manager', 'Safety Officer', 'Financial Analyst']), (req, res) => {
+router.get('/reports', authenticate, requireRole(['Fleet Manager', 'Safety Officer', 'Financial Analyst']), reportLimiter, (req, res) => {
   try {
     const completedTrips = db.prepare(`SELECT t.*, v.registration_number FROM trips t JOIN vehicles v ON t.vehicle_id = v.id WHERE t.status = 'Completed' ORDER BY t.created_at DESC LIMIT 20`).all();
     const expenses = db.prepare(`SELECT type, SUM(amount) as total FROM expenses GROUP BY type`).all();
@@ -197,7 +210,7 @@ router.get('/reports', authenticate, requireRole(['Fleet Manager', 'Safety Offic
   }
 });
 
-router.get('/export', authenticate, requireRole(['Fleet Manager', 'Financial Analyst']), (req, res) => {
+router.get('/export', authenticate, requireRole(['Fleet Manager', 'Financial Analyst']), exportLimiter, (req, res) => {
   try {
     const trips = db.prepare(`
       SELECT t.id, t.source, t.destination, t.cargo_weight, t.planned_distance, t.actual_distance, t.fuel_consumed, t.status, t.created_at, v.registration_number, d.name as driver_name

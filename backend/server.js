@@ -22,7 +22,29 @@ const app = express();
 initDb();
 
 // Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+    },
+  },
+  crossOriginEmbedderPolicy: true,
+  crossOriginOpenerPolicy: { policy: "same-origin" },
+  crossOriginResourcePolicy: { policy: "same-origin" },
+  referrerPolicy: { policy: "no-referrer" },
+  strictTransportSecurity: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  xContentTypeOptions: true,
+  xFrameOptions: { action: "deny" },
+  xPermittedCrossDomainPolicies: { permittedPolicies: "none" }
+}));
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
@@ -44,7 +66,7 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '10kb' })); // Security Fix: Prevent oversized payloads
 app.use(morgan('dev'));
 
 const limiter = rateLimit({

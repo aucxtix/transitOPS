@@ -2,22 +2,30 @@ import express from 'express';
 import db from '../db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
+// Security Fix: Rate limit for trip dispatching to prevent spam
+const dispatchLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Max 100 dispatches per IP
+  message: { error: 'Too many trips dispatched from this IP, please try again later' }
+});
+
 const tripSchema = z.object({
-  source: z.string().min(1),
-  destination: z.string().min(1),
+  source: z.string().min(1).max(255),
+  destination: z.string().min(1).max(255),
   vehicle_id: z.number().int().positive(),
   driver_id: z.number().int().positive(),
-  cargo_weight: z.number().positive(),
-  planned_distance: z.number().positive(),
-  notes: z.string().optional()
+  cargo_weight: z.number().positive().max(100000), // Max 100 tons
+  planned_distance: z.number().positive().max(50000), // Max 50,000 km
+  notes: z.string().max(1000).optional()
 });
 
 const completeTripSchema = z.object({
-  actual_distance: z.number().positive(),
-  fuel_consumed: z.number().positive()
+  actual_distance: z.number().positive().max(50000),
+  fuel_consumed: z.number().positive().max(20000)
 });
 
 router.use(authenticate);
@@ -90,6 +98,12 @@ router.put('/:id', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
     const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);
     if (!trip) return res.status(404).json({ error: 'Trip not found' });
 
+    if (trip.status === 'Completed' || trip.status === 'Cancelled') {
+      db.prepare(`UPDATE trips SET notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).run(data.notes || null, id);
+      const updatedTrip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);
+      return res.json(updatedTrip);
+    }
+
     // Validate vehicle and driver
     const vehicle = db.prepare('SELECT * FROM vehicles WHERE id = ?').get(data.vehicle_id);
     if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
@@ -142,7 +156,7 @@ router.put('/:id', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
 });
 
 // Dispatch / Start Trip
-router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher', 'Driver']), (req, res) => {
+router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher', 'Driver']), dispatchLimiter, (req, res) => {
   const { id } = req.params;
   
   const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);

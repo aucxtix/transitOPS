@@ -3,19 +3,26 @@ import bcrypt from 'bcryptjs';
 import db from '../db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
 
+const driverCreationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 50,
+  message: { error: 'Too many drivers created from this IP, please try again later' }
+});
+
 const driverSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email().optional(),
-  password: z.string().min(6).optional(),
-  license_number: z.string().min(1),
-  license_category: z.string().min(1),
-  license_expiry_date: z.string().min(1),
-  contact_number: z.string().min(1),
+  name: z.string().min(1).max(100),
+  email: z.string().email().max(255).optional(),
+  password: z.string().min(12).optional(),
+  license_number: z.string().min(1).max(50),
+  license_category: z.string().min(1).max(50),
+  license_expiry_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD'),
+  contact_number: z.string().min(1).max(20),
   safety_score: z.number().min(0).max(100).optional(),
-  status: z.string().optional()
+  status: z.enum(['Available', 'On Trip', 'Suspended']).optional()
 });
 
 router.use(authenticate);
@@ -45,7 +52,7 @@ router.get('/', requireRole(['Fleet Manager', 'Dispatcher', 'Safety Officer', 'F
   }
 });
 
-router.post('/', requireRole(['Fleet Manager']), async (req, res) => {
+router.post('/', requireRole(['Fleet Manager']), driverCreationLimiter, async (req, res) => {
   try {
     const data = driverSchema.parse(req.body);
     const existing = db.prepare('SELECT * FROM drivers WHERE license_number = ?').get(data.license_number);
@@ -53,33 +60,36 @@ router.post('/', requireRole(['Fleet Manager']), async (req, res) => {
       return res.status(400).json({ error: 'License number must be unique.' });
     }
 
-    // Auto-create User account for the Driver so they can log in
     const role = db.prepare('SELECT id FROM roles WHERE name = ?').get('Driver');
     if (!role) return res.status(500).json({ error: 'Driver role not found' });
     
-    // Use provided email and password, or fallback if none
     const email = data.email || `${data.license_number.toLowerCase().replace(/[^a-z0-9]/g, '')}@transitops.local`;
     const passwordToHash = data.password || data.license_number;
-    const hashedPassword = await bcrypt.hash(passwordToHash, 10);
+    const hashedPassword = await bcrypt.hash(passwordToHash, 12); // Secure hashing cost
     
-    const userStmt = db.prepare(`
-      INSERT INTO users (name, email, password, role_id)
-      VALUES (?, ?, ?, ?)
-    `);
-    const userInfo = userStmt.run(data.name, email, hashedPassword, role.id);
-    const userId = userInfo.lastInsertRowid;
+    const createTransaction = db.transaction(() => {
+      const userStmt = db.prepare(`
+        INSERT INTO users (name, email, password, role_id)
+        VALUES (?, ?, ?, ?)
+      `);
+      const userInfo = userStmt.run(data.name, email, hashedPassword, role.id);
+      const userId = userInfo.lastInsertRowid;
 
-    const stmt = db.prepare(`
-      INSERT INTO drivers (user_id, name, license_number, license_category, license_expiry_date, contact_number, safety_score, status)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    
-    const info = stmt.run(
-      userId, data.name, data.license_number, data.license_category, data.license_expiry_date,
-      data.contact_number, data.safety_score ?? 100, data.status || 'Available'
-    );
-    
-    const newDriver = db.prepare('SELECT * FROM drivers WHERE id = ?').get(info.lastInsertRowid);
+      const stmt = db.prepare(`
+        INSERT INTO drivers (user_id, name, license_number, license_category, license_expiry_date, contact_number, safety_score, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      
+      const info = stmt.run(
+        userId, data.name, data.license_number, data.license_category, data.license_expiry_date,
+        data.contact_number, data.safety_score ?? 100, data.status || 'Available'
+      );
+      
+      return info.lastInsertRowid;
+    });
+
+    const driverId = createTransaction();
+    const newDriver = db.prepare('SELECT * FROM drivers WHERE id = ?').get(driverId);
     res.status(201).json(newDriver);
   } catch (err) {
     if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors[0].message });

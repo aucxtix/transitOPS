@@ -8,10 +8,10 @@ const router = express.Router();
 router.use(authenticate);
 
 const requestSchema = z.object({
-  source: z.string().min(1),
-  destination: z.string().min(1),
-  cargo_weight: z.number().positive(),
-  notes: z.string().optional()
+  source: z.string().min(1).max(255),
+  destination: z.string().min(1).max(255),
+  cargo_weight: z.number().positive().max(100000),
+  notes: z.string().max(1000).optional()
 });
 
 // Get all trip requests (Customers see their own, Fleet Managers/Dispatchers see all)

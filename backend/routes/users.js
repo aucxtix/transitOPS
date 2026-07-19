@@ -3,17 +3,28 @@ import bcrypt from 'bcryptjs';
 import db from '../db.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 
 const router = express.Router();
+
+const userCreationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,
+  message: { error: 'Too many users created from this IP, please try again later' }
+});
 
 // Only Fleet Managers can manage users
 router.use(authenticate, requireRole(['Fleet Manager']));
 
 const userSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6),
-  roleName: z.string()
+  name: z.string().min(2).max(100),
+  email: z.string().email().max(255),
+  password: z.string().min(12, 'Password must be at least 12 characters')
+    .regex(/[A-Z]/, 'Must contain an uppercase letter')
+    .regex(/[a-z]/, 'Must contain a lowercase letter')
+    .regex(/[0-9]/, 'Must contain a number')
+    .regex(/[^A-Za-z0-9]/, 'Must contain a special character'),
+  roleName: z.enum(['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Customer', 'Driver'])
 });
 
 // Get all users
@@ -32,7 +43,7 @@ router.get('/', (req, res) => {
 });
 
 // Add a user
-router.post('/', async (req, res) => {
+router.post('/', userCreationLimiter, async (req, res) => {
   try {
     const { name, email, password, roleName } = userSchema.parse(req.body);
 
@@ -46,7 +57,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = db.prepare(`
       INSERT INTO users (name, email, password, role_id)
@@ -80,10 +91,10 @@ router.put('/:id', async (req, res) => {
     
     // Partially validate (can update just name or password)
     const updateSchema = z.object({
-      name: z.string().min(2).optional(),
-      email: z.string().email().optional(),
-      password: z.string().min(6).optional(),
-      roleName: z.string().optional()
+      name: z.string().min(2).max(100).optional(),
+      email: z.string().email().max(255).optional(),
+      password: z.string().min(12).optional(),
+      roleName: z.enum(['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Customer', 'Driver']).optional()
     });
 
     const data = updateSchema.parse(req.body);
@@ -102,7 +113,7 @@ router.put('/:id', async (req, res) => {
 
     let finalPassword = user.password;
     if (data.password) {
-      finalPassword = await bcrypt.hash(data.password, 10);
+      finalPassword = await bcrypt.hash(data.password, 12);
     }
 
     db.prepare(`

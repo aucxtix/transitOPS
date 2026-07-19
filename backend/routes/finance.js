@@ -10,17 +10,17 @@ router.use(authenticate);
 const fuelSchema = z.object({
   vehicle_id: z.number().int().positive(),
   trip_id: z.number().int().positive().optional(),
-  liters: z.number().positive(),
-  cost: z.number().positive(),
-  date: z.string().min(1)
+  liters: z.number().positive().max(5000),
+  cost: z.number().positive().max(100000),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD')
 });
 
 const expenseSchema = z.object({
   vehicle_id: z.number().int().positive().optional(),
-  type: z.string().min(1),
-  quantity: z.number().optional(),
-  amount: z.number().positive(),
-  date: z.string().min(1)
+  type: z.string().min(1).max(100),
+  quantity: z.number().max(10000).optional(),
+  amount: z.number().positive().max(1000000),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD')
 });
 
 // Fuel Logs

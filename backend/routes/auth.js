@@ -17,19 +17,30 @@ const loginLimiter = rateLimit({
   message: { error: 'Too many login attempts from this IP, please try again after 15 minutes' }
 });
 
+const signupLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // Limit each IP to 3 signups per hour
+  message: { error: 'Too many accounts created from this IP, please try again after an hour' }
+});
+
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1)
 });
 
 const signupSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  password: z.string().min(6)
+  name: z.string().min(2).max(100),
+  email: z.string().email().max(255),
+  password: z.string()
+    .min(12, 'Password must be at least 12 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number')
+    .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character')
 });
 
 // Security & Performance Fix: Applied loginLimiter and made route fully async
-router.post('/signup', async (req, res) => {
+router.post('/signup', signupLimiter, async (req, res) => {
   try {
     const { name, email, password } = signupSchema.parse(req.body);
     
@@ -43,7 +54,7 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'Email already exists' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12); // Increased cost factor for security
     const result = db.prepare(`
       INSERT INTO users (name, email, password, role_id)
       VALUES (?, ?, ?, ?)

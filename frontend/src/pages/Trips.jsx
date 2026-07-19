@@ -30,6 +30,7 @@ const Trips = () => {
   const [completeData, setCompleteData] = useState({ actual_distance: '', fuel_consumed: '' });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditRestricted, setIsEditRestricted] = useState(false);
   const [editData, setEditData] = useState({
     source: '', destination: '', vehicle_id: '', driver_id: '', cargo_weight: '', planned_distance: '', notes: ''
   });
@@ -102,6 +103,7 @@ const Trips = () => {
   const openEditModal = (trip) => {
     fetchAvailable();
     setActiveTripId(trip.id);
+    setIsEditRestricted(trip.status === 'Completed' || trip.status === 'Cancelled');
     setEditData({
       source: trip.source,
       destination: trip.destination,
@@ -446,33 +448,33 @@ const Trips = () => {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Source</label>
-              <input type="text" required value={editData.source} onChange={e => setEditData({...editData, source: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" disabled={isEditRestricted} required value={editData.source} onChange={e => setEditData({...editData, source: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary disabled:opacity-50" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Destination</label>
-              <input type="text" required value={editData.destination} onChange={e => setEditData({...editData, destination: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" disabled={isEditRestricted} required value={editData.destination} onChange={e => setEditData({...editData, destination: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary disabled:opacity-50" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Vehicle</label>
-              <select required value={editData.vehicle_id} onChange={e => setEditData({...editData, vehicle_id: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary">
+              <select disabled={isEditRestricted} required value={editData.vehicle_id} onChange={e => setEditData({...editData, vehicle_id: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary disabled:opacity-50">
                 {availableVehicles.map(v => <option key={v.id} value={v.id}>{v.registration_number} - {v.name_model}</option>)}
                 {!availableVehicles.find(v => v.id === editData.vehicle_id) && <option value={editData.vehicle_id}>Keep Current Vehicle</option>}
               </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Driver</label>
-              <select required value={editData.driver_id} onChange={e => setEditData({...editData, driver_id: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary">
+              <select disabled={isEditRestricted} required value={editData.driver_id} onChange={e => setEditData({...editData, driver_id: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary disabled:opacity-50">
                 {availableDrivers.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
                 {!availableDrivers.find(d => d.id === editData.driver_id) && <option value={editData.driver_id}>Keep Current Driver</option>}
               </select>
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Cargo Weight (kg)</label>
-              <input type="text" inputMode="decimal" required value={editData.cargo_weight} onChange={e => setEditData({...editData, cargo_weight: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" inputMode="decimal" disabled={isEditRestricted} required value={editData.cargo_weight} onChange={e => setEditData({...editData, cargo_weight: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary disabled:opacity-50" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Planned Distance (km)</label>
-              <input type="text" inputMode="decimal" required value={editData.planned_distance} onChange={e => setEditData({...editData, planned_distance: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" inputMode="decimal" disabled={isEditRestricted} required value={editData.planned_distance} onChange={e => setEditData({...editData, planned_distance: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary disabled:opacity-50" />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Notes</label>

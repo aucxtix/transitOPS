@@ -7,13 +7,13 @@ const router = express.Router();
 
 const maintenanceSchema = z.object({
   vehicle_id: z.number().int().positive(),
-  maintenance_name: z.string().min(1),
-  description: z.string().min(1),
-  notes: z.string().optional()
+  maintenance_name: z.string().min(1).max(100),
+  description: z.string().min(1).max(1000),
+  notes: z.string().max(1000).optional()
 });
 
 const closeMaintenanceSchema = z.object({
-  cost: z.number().min(0)
+  cost: z.number().min(0).max(1000000)
 });
 
 router.use(authenticate);
