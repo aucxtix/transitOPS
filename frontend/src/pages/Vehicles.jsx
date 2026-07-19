@@ -145,15 +145,15 @@ const Vehicles = () => {
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Max Capacity (kg)</label>
-              <input type="number" required min="1" value={formData.max_load_capacity} onChange={e => setFormData({...formData, max_load_capacity: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" inputMode="numeric" required value={formData.max_load_capacity} onChange={e => setFormData({...formData, max_load_capacity: e.target.value.replace(/[^0-9]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Acquisition Cost ($)</label>
-              <input type="number" required min="0" value={formData.acquisition_cost} onChange={e => setFormData({...formData, acquisition_cost: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" inputMode="decimal" required value={formData.acquisition_cost} onChange={e => setFormData({...formData, acquisition_cost: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-foreground/70 mb-1">Initial Odometer (km)</label>
-              <input type="number" min="0" value={formData.odometer} onChange={e => setFormData({...formData, odometer: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <input type="text" inputMode="numeric" value={formData.odometer} onChange={e => setFormData({...formData, odometer: e.target.value.replace(/[^0-9]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
             </div>
           </div>
           <div className="pt-4 flex justify-end gap-3">

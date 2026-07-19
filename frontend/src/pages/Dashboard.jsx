@@ -8,6 +8,7 @@ import DispatcherDash from './dashboards/DispatcherDash';
 import DriverDash from './dashboards/DriverDash';
 import FinanceDash from './dashboards/FinanceDash';
 import SafetyDash from './dashboards/SafetyDash';
+import CustomerDash from './dashboards/CustomerDash';
 
 import { AlertCircle } from 'lucide-react';
 
@@ -81,6 +82,7 @@ const Dashboard = () => {
           {dashboardData.type === 'Driver' && <DriverDash data={dashboardData} onRefresh={fetchDashboard} />}
           {dashboardData.type === 'Finance' && <FinanceDash data={dashboardData} />}
           {dashboardData.type === 'SafetyOfficer' && <SafetyDash data={dashboardData} />}
+          {dashboardData.type === 'Customer' && <CustomerDash />}
         </>
       )}
 

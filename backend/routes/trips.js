@@ -81,6 +81,66 @@ router.post('/', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
   }
 });
 
+// Edit Trip
+router.put('/:id', requireRole(['Fleet Manager', 'Dispatcher']), (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = tripSchema.parse(req.body);
+    
+    const trip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);
+    if (!trip) return res.status(404).json({ error: 'Trip not found' });
+
+    // Validate vehicle and driver
+    const vehicle = db.prepare('SELECT * FROM vehicles WHERE id = ?').get(data.vehicle_id);
+    if (!vehicle) return res.status(404).json({ error: 'Vehicle not found' });
+    // If vehicle changed, ensure it's available
+    if (vehicle.id !== trip.vehicle_id && vehicle.status !== 'Available') {
+      return res.status(400).json({ error: 'Selected vehicle is not available' });
+    }
+    if (data.cargo_weight > vehicle.max_load_capacity) {
+      return res.status(400).json({ error: `Cargo weight exceeds vehicle capacity (${vehicle.max_load_capacity}kg)` });
+    }
+
+    const driver = db.prepare('SELECT * FROM drivers WHERE id = ?').get(data.driver_id);
+    if (!driver) return res.status(404).json({ error: 'Driver not found' });
+    if (driver.id !== trip.driver_id && driver.status !== 'Available') {
+      return res.status(400).json({ error: 'Selected driver is not available' });
+    }
+
+    const editTransaction = db.transaction(() => {
+      if (trip.status === 'On Trip') {
+        if (vehicle.id !== trip.vehicle_id) {
+          db.prepare("UPDATE vehicles SET status = 'Available' WHERE id = ?").run(trip.vehicle_id);
+          db.prepare("UPDATE vehicles SET status = 'On Trip' WHERE id = ?").run(vehicle.id);
+        }
+        if (driver.id !== trip.driver_id) {
+          db.prepare("UPDATE drivers SET status = 'Available' WHERE id = ?").run(trip.driver_id);
+          db.prepare("UPDATE drivers SET status = 'On Trip' WHERE id = ?").run(driver.id);
+        }
+      }
+
+      const stmt = db.prepare(`
+        UPDATE trips SET 
+          source = ?, destination = ?, vehicle_id = ?, driver_id = ?, 
+          cargo_weight = ?, planned_distance = ?, notes = ?, updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `);
+      
+      stmt.run(
+        data.source, data.destination, data.vehicle_id, data.driver_id,
+        data.cargo_weight, data.planned_distance, data.notes || null, id
+      );
+    });
+
+    editTransaction();
+    const updatedTrip = db.prepare('SELECT * FROM trips WHERE id = ?').get(id);
+    res.json(updatedTrip);
+  } catch (err) {
+    if (err instanceof z.ZodError) return res.status(400).json({ error: err.errors[0].message });
+    res.status(500).json({ error: 'Failed to edit trip' });
+  }
+});
+
 // Dispatch / Start Trip
 router.put('/:id/dispatch', requireRole(['Fleet Manager', 'Dispatcher', 'Driver']), (req, res) => {
   const { id } = req.params;

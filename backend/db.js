@@ -125,6 +125,20 @@ export function initDb() {
       FOREIGN KEY (user_id) REFERENCES users (id)
     );
 
+    CREATE TABLE IF NOT EXISTS trip_requests (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER NOT NULL,
+      source TEXT NOT NULL,
+      destination TEXT NOT NULL,
+      cargo_weight REAL NOT NULL,
+      budget REAL,
+      status TEXT NOT NULL DEFAULT 'Pending',
+      notes TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (customer_id) REFERENCES users (id)
+    );
+
     CREATE INDEX IF NOT EXISTS idx_users_role_id ON users (role_id);
     CREATE INDEX IF NOT EXISTS idx_trips_vehicle_id ON trips (vehicle_id);
     CREATE INDEX IF NOT EXISTS idx_trips_driver_id ON trips (driver_id);
@@ -132,6 +146,9 @@ export function initDb() {
     CREATE INDEX IF NOT EXISTS idx_fuel_logs_vehicle_id ON fuel_logs (vehicle_id);
     CREATE INDEX IF NOT EXISTS idx_fuel_logs_trip_id ON fuel_logs (trip_id);
     CREATE INDEX IF NOT EXISTS idx_expenses_vehicle_id ON expenses (vehicle_id);
+    CREATE INDEX IF NOT EXISTS idx_trip_requests_customer_id ON trip_requests (customer_id);
+
+    INSERT OR IGNORE INTO roles (name) VALUES ('Customer');
   `);
 }
 

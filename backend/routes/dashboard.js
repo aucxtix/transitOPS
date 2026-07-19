@@ -148,6 +148,10 @@ router.get('/', authenticate, async (req, res) => {
         });
       }
 
+      case 'Customer': {
+        return res.json({ type: 'Customer' });
+      }
+
       default:
         return res.status(403).json({ error: 'Role not supported on dashboard' });
     }

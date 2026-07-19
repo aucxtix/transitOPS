@@ -16,6 +16,8 @@ const Drivers = () => {
   
   const initialFormData = {
     name: '',
+    email: '',
+    password: '',
     license_number: '',
     license_category: 'C',
     license_expiry_date: '',
@@ -190,6 +192,18 @@ const Drivers = () => {
                 <label className="block text-xs font-semibold text-foreground/70 mb-1">Full Name</label>
                 <input type="text" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" placeholder="e.g. John Doe" />
               </div>
+              {!editingId && (
+                <>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground/70 mb-1">Login Email</label>
+                    <input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" placeholder="e.g. john@transitops.com" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground/70 mb-1">Login Password</label>
+                    <input type="text" required minLength={6} value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" placeholder="Min 6 chars" />
+                  </div>
+                </>
+              )}
               <div>
                 <label className="block text-xs font-semibold text-foreground/70 mb-1">License No.</label>
                 <input type="text" required value={formData.license_number} onChange={e => setFormData({...formData, license_number: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" placeholder="e.g. DL-12345" />
@@ -209,7 +223,7 @@ const Drivers = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-foreground/70 mb-1">Contact Number</label>
-                <input type="tel" required value={formData.contact_number} onChange={e => setFormData({...formData, contact_number: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" placeholder="e.g. +1 555-1234" />
+                <input type="tel" required value={formData.contact_number} onChange={e => setFormData({...formData, contact_number: e.target.value.replace(/[^0-9+\-\s]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" placeholder="e.g. +1 555-1234" />
               </div>
               
               {editingId && (
@@ -224,7 +238,13 @@ const Drivers = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-foreground/70 mb-1">Safety Score (0-100)</label>
-                    <input type="number" required min="0" max="100" value={formData.safety_score} onChange={e => setFormData({...formData, safety_score: parseInt(e.target.value) || 0})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+                    <input type="text" inputMode="numeric" required value={formData.safety_score} onChange={e => {
+                      const val = e.target.value.replace(/[^0-9]/g, '');
+                      let num = parseInt(val);
+                      if (isNaN(num)) num = 0;
+                      if (num > 100) num = 100;
+                      setFormData({...formData, safety_score: num});
+                    }} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
                   </div>
                 </>
               )}

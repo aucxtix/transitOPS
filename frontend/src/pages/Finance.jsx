@@ -230,11 +230,11 @@ const Finance = () => {
               <div></div>
               <div>
                 <label className="block text-xs font-semibold text-foreground/70 mb-1">Liters</label>
-                <input type="number" required min="1" step="0.1" value={fuelData.liters} onChange={e => setFuelData({...fuelData, liters: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+                <input type="text" inputMode="decimal" required value={fuelData.liters} onChange={e => setFuelData({...fuelData, liters: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-foreground/70 mb-1">Total Cost ($)</label>
-                <input type="number" required min="1" step="0.01" value={fuelData.cost} onChange={e => setFuelData({...fuelData, cost: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+                <input type="text" inputMode="decimal" required value={fuelData.cost} onChange={e => setFuelData({...fuelData, cost: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
               </div>
             </div>
             <div className="pt-4 flex justify-end gap-3">
@@ -269,7 +269,7 @@ const Finance = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-foreground/70 mb-1">Amount ($)</label>
-                <input type="number" required min="1" step="0.01" value={expenseData.amount} onChange={e => setExpenseData({...expenseData, amount: e.target.value})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+                <input type="text" inputMode="decimal" required value={expenseData.amount} onChange={e => setExpenseData({...expenseData, amount: e.target.value.replace(/[^0-9.]/g, '')})} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
               </div>
             </div>
             <div className="pt-4 flex justify-end gap-3">

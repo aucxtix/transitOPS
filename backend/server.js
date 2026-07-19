@@ -13,6 +13,8 @@ import tripsRoutes from './routes/trips.js';
 import maintenanceRoutes from './routes/maintenance.js';
 import dashboardRoutes from './routes/dashboard.js';
 import financeRoutes from './routes/finance.js';
+import usersRoutes from './routes/users.js';
+import customersRoutes from './routes/customers.js';
 
 const app = express();
 
@@ -69,6 +71,8 @@ app.use('/api/trips', tripsRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/finance', financeRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/customers', customersRoutes);
 
 // 404 catch-all for /api routes
 app.use('/api/*', (req, res) => {

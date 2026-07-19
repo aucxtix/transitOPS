@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Vehicles from './pages/Vehicles';
 import Drivers from './pages/Drivers';
@@ -32,8 +33,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           <Route path="/unauthorized" element={<ProtectedRoute><Unauthorized /></ProtectedRoute>} />
-          <Route path="/" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver']}><Dashboard /></RoleRoute></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver', 'Customer']}><Dashboard /></RoleRoute></ProtectedRoute>} />
           <Route path="/vehicles" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst']}><Vehicles /></RoleRoute></ProtectedRoute>} />
           <Route path="/drivers" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst']}><Drivers /></RoleRoute></ProtectedRoute>} />
           <Route path="/trips" element={<ProtectedRoute><RoleRoute allowedRoles={['Fleet Manager', 'Dispatcher', 'Safety Officer', 'Financial Analyst', 'Driver']}><Trips /></RoleRoute></ProtectedRoute>} />

@@ -22,7 +22,52 @@ const loginSchema = z.object({
   password: z.string().min(1)
 });
 
+const signupSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(6)
+});
+
 // Security & Performance Fix: Applied loginLimiter and made route fully async
+router.post('/signup', async (req, res) => {
+  try {
+    const { name, email, password } = signupSchema.parse(req.body);
+    
+    const role = db.prepare('SELECT id FROM roles WHERE name = ?').get('Customer');
+    if (!role) {
+      return res.status(500).json({ error: 'Customer role not found. Contact administrator.' });
+    }
+
+    const existingUser = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (existingUser) {
+      return res.status(400).json({ error: 'Email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = db.prepare(`
+      INSERT INTO users (name, email, password, role_id)
+      VALUES (?, ?, ?, ?)
+    `).run(name, email, hashedPassword, role.id);
+
+    const token = jwt.sign(
+      { id: result.lastInsertRowid, email, roleId: role.id, roleName: 'Customer', name },
+      config.JWT_SECRET,
+      { expiresIn: config.JWT_EXPIRES_IN }
+    );
+
+    res.status(201).json({
+      token,
+      user: { id: result.lastInsertRowid, name, email, role: 'Customer' }
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    console.error(err);
+    res.status(500).json({ error: 'Signup failed' });
+  }
+});
+
 router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = loginSchema.parse(req.body);

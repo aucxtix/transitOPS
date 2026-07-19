@@ -89,7 +89,7 @@ const Maintenance = () => {
           <h1 className="text-2xl font-bold tracking-tight">Maintenance Logs</h1>
           <p className="text-foreground/60 text-sm mt-1">Track vehicle repairs and service history.</p>
         </div>
-        {hasRole(['Fleet Manager']) && (
+        {hasRole(['Fleet Manager', 'Safety Officer']) && (
           <button onClick={openCreateModal} className="pill-button pill-button-dark shadow-sm">
             Create Log
           </button>
@@ -125,7 +125,7 @@ const Maintenance = () => {
                   </td>
                   <td className="px-6 py-4"><StatusBadge status={l.status} /></td>
                   <td className="px-6 py-4 text-right">
-                    {hasRole(['Fleet Manager']) && l.status === 'Open' && (
+                    {hasRole(['Fleet Manager', 'Safety Officer']) && l.status === 'Open' && (
                       <button onClick={() => openCloseModal(l.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded hover:bg-emerald-500/20 font-medium transition-colors">
                         Close Log
                       </button>
@@ -177,8 +177,8 @@ const Maintenance = () => {
         <form onSubmit={handleClose} className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-foreground/70 mb-1">Total Cost ($)</label>
-              <input type="number" required min="0" step="0.01" value={closeCost} onChange={e => setCloseCost(e.target.value)} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
+              <label className="block text-xs font-semibold text-foreground/70 mb-1">Final Maintenance Cost ($)</label>
+              <input type="text" inputMode="decimal" required value={closeCost} onChange={e => setCloseCost(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full px-4 py-2.5 rounded-xl border border-border bg-foreground/5 focus:outline-none focus:border-primary" />
             </div>
           </div>
           <div className="pt-4 flex justify-end gap-3">

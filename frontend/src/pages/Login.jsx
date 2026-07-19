@@ -102,6 +102,9 @@ const Login = () => {
             >
               {loading ? 'Authenticating...' : 'Sign In'}
             </button>
+            <p className="text-center text-sm text-foreground/60 font-medium">
+              Are you a new customer? <a href="/signup" className="text-primary hover:underline">Create an account</a>
+            </p>
           </form>
         </div>
 
