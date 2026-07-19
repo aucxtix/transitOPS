@@ -54,12 +54,13 @@ const allowedOrigins = [
 ];
 app.use(cors({
   origin: (origin, callback) => {
-    // Security Fix: Reject requests with no origin unless in development
+    // Browsers do not send an Origin header for same-origin requests (like our Vercel monorepo deployment)
     if (!origin) {
-      if (config.NODE_ENV === 'development') {
-        return callback(null, true);
-      }
-      return callback(new Error('CORS: Requests with no origin are strictly forbidden in production'));
+      return callback(null, true);
+    }
+    // Allow Vercel preview/production domains dynamically
+    if (origin.endsWith('.vercel.app')) {
+      return callback(null, true);
     }
     if (allowedOrigins.includes(origin)) return callback(null, true);
     callback(new Error(`CORS: Origin ${origin} not allowed`));
