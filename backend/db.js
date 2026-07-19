@@ -1,15 +1,13 @@
-import Database from 'better-sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
+import Database from 'libsql';
+import { config } from './config.js';
  
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dbPath = path.join(__dirname, 'transitops.db');
+const dbUrl = config.TURSO_DATABASE_URL || 'file:./transitops.db';
+const authToken = config.TURSO_AUTH_TOKEN || undefined;
 
-const db = new Database(dbPath, { verbose: null });
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const db = new Database(dbUrl, { authToken });
+
+// Foreign keys aren't officially supported in remote libsql yet the same way, but we can try setting them if it's local.
+// We'll execute schema directly below.
 
 export function initDb() {
   db.exec(`
