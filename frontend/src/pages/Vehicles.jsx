@@ -63,7 +63,7 @@ const Vehicles = () => {
     }
   };
 
-  if (loading) return <div className="animate-pulse h-64 bg-border rounded-xl"></div>;
+  if (loading) return <div className="animate-pulse min-h-[80vh] bg-foreground/5 rounded-3xl border border-border/50"></div>;
 
   return (
     <div className="space-y-6">

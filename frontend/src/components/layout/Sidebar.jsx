@@ -35,8 +35,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         (isMobileOpen || isHovered) ? "translate-x-0 w-72" : "-translate-x-full md:translate-x-0 md:w-20"
       )}
     >
-      <div className="flex items-center justify-between px-4 mb-2">
-        <div className="flex items-center gap-3 overflow-hidden">
+      <div className="flex flex-col h-full w-72 gap-6">
+        <div className="flex items-center justify-between px-4 mb-2">
+          <div className="flex items-center gap-3 overflow-hidden">
           <div className="text-primary bg-primary/10 min-w-[40px] h-[40px] flex items-center justify-center rounded-xl shadow-sm shrink-0">
             <Hexagon size={24} className="fill-primary/20" />
           </div>
@@ -143,6 +144,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             <span className="text-xs text-foreground/50 truncate">{user?.role || 'Guest'}</span>
           </div>
         </div>
+      </div>
       </div>
     </aside>
   );
