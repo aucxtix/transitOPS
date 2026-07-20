@@ -23,7 +23,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { path: '/finance', icon: CircleDollarSign, roles: ['Fleet Manager', 'Financial Analyst'], tooltip: 'Finance' },
     { path: '/reports', icon: BarChart3, roles: ['Fleet Manager', 'Safety Officer', 'Financial Analyst'], tooltip: 'Reports' },
     { path: '/audit-logs', icon: ClipboardList, roles: ['Fleet Manager'], tooltip: 'Log History' },
-    { path: '/settings', icon: Settings, roles: ['Fleet Manager'], tooltip: 'Settings' },
   ];
 
   return (
@@ -96,6 +95,33 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       </div>
 
       <div className="flex flex-col gap-2 w-full pt-4 border-t border-border/10 px-3 shrink-0">
+        {user?.role === 'Fleet Manager' && (
+          <NavLink
+            to="/settings"
+            onClick={() => setIsMobileOpen?.(false)}
+            title={(!isHovered && !isMobileOpen) ? "Settings" : undefined}
+            className={({ isActive }) => cn(
+              "p-3 rounded-xl flex items-center transition-colors w-full overflow-hidden group shrink-0",
+              isActive 
+                ? "bg-card shadow-soft text-primary" 
+                : "text-foreground/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground"
+            )}
+          >
+            {({ isActive }) => (
+              <>
+                <div className="min-w-[40px] flex items-center justify-center shrink-0 -ml-1.5 transition-transform duration-300 group-hover:rotate-45">
+                  <Settings size={20} strokeWidth={isActive ? 2.5 : 2} />
+                </div>
+                <span className={cn(
+                  "font-medium whitespace-nowrap transition-all duration-300",
+                  isActive ? "text-primary font-semibold" : "",
+                  (isHovered || isMobileOpen) ? "opacity-100 ml-1 translate-x-0" : "md:opacity-0 md:-translate-x-4"
+                )}>Settings</span>
+              </>
+            )}
+          </NavLink>
+        )}
+
         <button
           onClick={toggleTheme}
           title={(!isHovered && !isMobileOpen) ? "Toggle Theme" : undefined}
