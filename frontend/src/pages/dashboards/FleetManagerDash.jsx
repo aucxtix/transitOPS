@@ -62,7 +62,7 @@ const FleetManagerDash = ({ data }) => {
                <p className="text-sm font-medium text-foreground/50">On Route</p>
              </div>
              <div className="flex-1 flex flex-col justify-center items-center bg-foreground/5 rounded-2xl">
-               <h4 className="text-5xl font-bold mono-text text-amber-500 mb-2">{kpis?.pendingTrips || 0}</h4>
+               <h4 className="text-5xl font-bold mono-text text-amber-600 dark:text-amber-400 mb-2">{kpis?.pendingTrips || 0}</h4>
                <p className="text-sm font-medium text-foreground/50">Pending</p>
              </div>
           </div>

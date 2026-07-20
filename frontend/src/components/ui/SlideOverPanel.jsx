@@ -18,9 +18,9 @@ export const SlideOverPanel = ({ isOpen, title, onClose, children }) => {
           <button 
             onClick={onClose} 
             className="p-2 rounded-full hover:bg-foreground/5 text-foreground/50 transition-colors"
-          >
-            <X size={20} />
-          </button>
+           title="X" aria-label="X">
+                          <X size={16} />
+                        </button>
         </div>
         
         <div className="flex-1 overflow-y-auto pr-2">

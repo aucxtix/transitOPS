@@ -51,7 +51,7 @@ const DispatcherDash = ({ data, onRefresh }) => {
           </div>
           <div className="glass-panel rounded-[2rem] p-8 shadow-float flex flex-col justify-center">
             <p className="text-foreground/70 font-medium mb-1">Trips Pending Dispatch</p>
-            <h2 className="text-5xl font-bold tracking-tight mono-text text-amber-500">{kpis?.pendingTrips || 0}</h2>
+            <h2 className="text-5xl font-bold tracking-tight mono-text text-amber-600 dark:text-amber-400">{kpis?.pendingTrips || 0}</h2>
           </div>
         </div>
 
@@ -88,7 +88,7 @@ const DispatcherDash = ({ data, onRefresh }) => {
 
       <div className="flex flex-col gap-6">
         <div className="glass-panel rounded-[1.75rem] p-6 flex flex-col h-[300px]">
-          <h3 className="font-semibold text-foreground/80 mb-4 flex items-center gap-2 text-amber-500"><Truck size={18}/> Awaiting Dispatch</h3>
+          <h3 className="font-semibold text-foreground/80 mb-4 flex items-center gap-2 text-amber-600 dark:text-amber-400"><Truck size={18}/> Awaiting Dispatch</h3>
           {pendingTripList && pendingTripList.length > 0 ? (
             <div className="overflow-y-auto pr-2 space-y-3">
               {pendingTripList.map(trip => (

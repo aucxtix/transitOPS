@@ -8,7 +8,7 @@ const demoAccounts = [
   { role: 'Fleet Manager', email: 'admin@transitops.com', pass: 'Admin@123', icon: Shield, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
   { role: 'Dispatcher', email: 'dispatcher@transitops.com', pass: 'Dispatch@123', icon: Map, color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
   { role: 'Safety Officer', email: 'safety@transitops.com', pass: 'Safety@123', icon: Activity, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-  { role: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', icon: Banknote, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+  { role: 'Financial Analyst', email: 'finance@transitops.com', pass: 'Finance@123', icon: Banknote, color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-500/10' },
   { role: 'Driver', email: 'alex@transitops.com', pass: 'Driver@123', icon: Truck, color: 'text-slate-500', bg: 'bg-slate-500/10' },
 ];
 

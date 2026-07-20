@@ -33,7 +33,7 @@ const FinanceDashboard = ({ data }) => {
                   <td className="px-4 py-3">{e.date}</td>
                   <td className="px-4 py-3 font-medium">{e.type}</td>
                   <td className="px-4 py-3">{e.registration_number || 'General'}</td>
-                  <td className="px-4 py-3 font-bold text-amber-500">${e.amount}</td>
+                  <td className="px-4 py-3 font-bold text-amber-600 dark:text-amber-400">${e.amount}</td>
                 </tr>
               )) : (
                 <tr><td colSpan="4" className="text-center py-6 text-foreground/50">No pending expenses.</td></tr>

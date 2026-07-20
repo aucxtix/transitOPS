@@ -24,9 +24,9 @@ const AuditLogs = () => {
 
   const getActionColor = (action) => {
     switch (action) {
-      case 'LOGIN': return 'text-emerald-500 bg-emerald-500/10';
-      case 'LOGOUT': return 'text-amber-500 bg-amber-500/10';
-      case 'POST': return 'text-blue-500 bg-blue-500/10';
+      case 'LOGIN': return 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10';
+      case 'LOGOUT': return 'text-amber-600 dark:text-amber-400 bg-amber-500/10';
+      case 'POST': return 'text-blue-600 dark:text-blue-400 bg-blue-500/10';
       case 'PUT': 
       case 'PATCH': return 'text-violet-500 bg-violet-500/10';
       case 'DELETE': return 'text-red-500 bg-red-500/10';

@@ -103,7 +103,7 @@ const Reports = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <KPICard title="Total Lifetime Trips" value={reports.kpis.totalTrips} icon={TrendingUp} color="text-indigo-500" />
           <KPICard title="Total Fuel Cost" value={`$${reports.kpis.totalFuelCost.toLocaleString()}`} icon={Droplets} color="text-cyan-500" />
-          <KPICard title="Approved Expenses" value={`$${reports.kpis.totalExpenses.toLocaleString()}`} icon={PieChartIcon} color="text-emerald-500" />
+          <KPICard title="Approved Expenses" value={`$${reports.kpis.totalExpenses.toLocaleString()}`} icon={PieChartIcon} color="text-emerald-600 dark:text-emerald-400" />
           <KPICard title="Fleet Safety Score" value={`${reports.kpis.avgSafetyScore.toFixed(1)} / 100`} icon={Activity} color="text-purple-500" />
         </div>
       )}
@@ -114,7 +114,7 @@ const Reports = () => {
         {/* Fleet Utilization Donut */}
         <div className="glass-panel rounded-[2rem] p-8 shadow-float flex flex-col h-[400px] lg:col-span-1">
           <div className="flex items-center gap-3 mb-2">
-            <Truck className="text-blue-500" size={24} />
+            <Truck className="text-blue-600 dark:text-blue-400" size={24} />
             <h3 className="font-bold text-xl">Fleet Utilization</h3>
           </div>
           <div className="flex-1 w-full relative">
@@ -189,7 +189,7 @@ const Reports = () => {
         {/* Expense Breakdown Pie Chart */}
         <div className="glass-panel rounded-[2rem] p-8 shadow-float flex flex-col h-[450px]">
           <div className="flex items-center gap-3 mb-8">
-            <PieChartIcon className="text-amber-500" size={24} />
+            <PieChartIcon className="text-amber-600 dark:text-amber-400" size={24} />
             <h3 className="font-bold text-xl">Operational Expense Breakdown</h3>
           </div>
           <div className="flex-1 w-full relative">

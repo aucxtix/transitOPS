@@ -28,7 +28,7 @@ const SafetyDash = ({ data }) => {
                    </div>
                 </div>
                 <div className="flex flex-col items-end">
-                   <span className={`text-lg font-bold mono-text ${driver.safety_score >= 90 ? 'text-emerald-500' : driver.safety_score >= 70 ? 'text-amber-500' : 'text-red-500'}`}>
+                   <span className={`text-lg font-bold mono-text ${driver.safety_score >= 90 ? 'text-emerald-600 dark:text-emerald-400' : driver.safety_score >= 70 ? 'text-amber-600 dark:text-amber-400' : 'text-red-500'}`}>
                      {driver.safety_score}
                    </span>
                    <span className="text-[10px] uppercase text-foreground/40 font-bold">Score</span>

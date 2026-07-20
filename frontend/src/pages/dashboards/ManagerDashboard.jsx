@@ -110,9 +110,9 @@ const ManagerDashboard = ({ data }) => {
           <div className="rounded-[1.75rem] p-6 h-64 flex flex-col bg-gradient-blue text-white shadow-float relative overflow-hidden">
              <div className="flex justify-between items-center mb-2 z-10 relative">
               <h3 className="font-medium text-white/90">Operational Health</h3>
-              <button className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md">
-                <Activity size={14} className="text-white" />
-              </button>
+              <button className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md" title="Activity" aria-label="Activity">
+                          <Activity size={16} />
+                        </button>
             </div>
             <div className="z-10 relative mt-2">
               <h4 className="text-4xl font-bold tracking-tight">92<span className="text-xl text-white/70">%</span></h4>
@@ -161,9 +161,9 @@ const ManagerDashboard = ({ data }) => {
           </div>
           
           <div className="relative z-10 flex items-center gap-3 mb-8">
-             <button className="w-12 h-12 rounded-full border border-dashed border-foreground/30 flex items-center justify-center hover:bg-foreground/5 transition-colors">
-               <Plus size={20} className="text-foreground/50" />
-             </button>
+             <button className="w-12 h-12 rounded-full border border-dashed border-foreground/30 flex items-center justify-center hover:bg-foreground/5 transition-colors" title="Plus" aria-label="Plus">
+                          <Plus size={16} />
+                        </button>
              {availableDrivers.map((driver) => (
                <div 
                  key={driver.id} 

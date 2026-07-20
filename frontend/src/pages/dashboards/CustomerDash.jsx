@@ -66,10 +66,10 @@ const CustomerDash = () => {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'Pending': return <Clock size={24} className="text-amber-500" />;
-      case 'Quoted': return <Clock size={24} className="text-blue-500" />;
+      case 'Pending': return <Clock size={24} className="text-amber-600 dark:text-amber-400" />;
+      case 'Quoted': return <Clock size={24} className="text-blue-600 dark:text-blue-400" />;
       case 'Customer Approved': 
-      case 'Approved': return <CheckCircle size={24} className="text-emerald-500" />;
+      case 'Approved': return <CheckCircle size={24} className="text-emerald-600 dark:text-emerald-400" />;
       case 'Rejected': return <XCircle size={24} className="text-red-500" />;
       default: return <Package size={24} />;
     }
@@ -91,7 +91,7 @@ const CustomerDash = () => {
         </div>
         <div className="glass-panel p-6 rounded-[2rem] shadow-sm flex flex-col justify-between">
           <div>
-            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-4">
               <Clock size={24} />
             </div>
             <h3 className="text-3xl font-bold tracking-tight">{requests.filter(r => r.status === 'Pending').length}</h3>
@@ -121,7 +121,7 @@ const CustomerDash = () => {
               <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <div>
                   <div className="flex items-center gap-2 text-sm font-medium mb-1 text-foreground/70">
-                    <MapPin size={14} className="text-emerald-500" /> From
+                    <MapPin size={14} className="text-emerald-600 dark:text-emerald-400" /> From
                   </div>
                   <p className="font-semibold text-base">{req.source}</p>
                 </div>
@@ -140,7 +140,7 @@ const CustomerDash = () => {
                 {req.budget && (
                   <div className="text-center md:text-right">
                     <p className="text-xs text-foreground/50 font-medium uppercase tracking-wider mb-1">Proposed Budget</p>
-                    <p className="font-bold font-mono text-emerald-500">${req.budget}</p>
+                    <p className="font-bold font-mono text-emerald-600 dark:text-emerald-400">${req.budget}</p>
                   </div>
                 )}
                 <div>

@@ -66,7 +66,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               onClick={() => setIsMobileOpen?.(false)}
               title={(!isHovered && !isMobileOpen) ? item.tooltip : undefined}
               className={({ isActive }) => cn(
-                "w-full flex items-center p-3 rounded-xl transition-all duration-300 relative group overflow-hidden shrink-0",
+                "w-full flex items-center py-2.5 px-3 rounded-xl transition-all duration-300 relative group overflow-hidden shrink-0",
                 isActive 
                   ? "bg-card shadow-soft text-primary" 
                   : "text-foreground/50 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground"
@@ -101,7 +101,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             onClick={() => setIsMobileOpen?.(false)}
             title={(!isHovered && !isMobileOpen) ? "Settings" : undefined}
             className={({ isActive }) => cn(
-              "p-3 rounded-xl flex items-center transition-colors w-full overflow-hidden group shrink-0",
+              "py-2.5 px-3 rounded-xl flex items-center transition-colors w-full overflow-hidden group shrink-0",
               isActive 
                 ? "bg-card shadow-soft text-primary" 
                 : "text-foreground/60 hover:bg-black/5 dark:hover:bg-white/5 hover:text-foreground"
@@ -125,7 +125,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         <button
           onClick={toggleTheme}
           title={(!isHovered && !isMobileOpen) ? "Toggle Theme" : undefined}
-          className="p-3 rounded-xl flex items-center text-foreground/60 hover:bg-black/5 dark:hover:bg-white/5 transition-colors w-full overflow-hidden group shrink-0"
+          className="py-2.5 px-3 rounded-xl flex items-center text-foreground/60 hover:bg-black/5 dark:hover:bg-white/5 transition-colors w-full overflow-hidden group shrink-0"
         >
           <div className="min-w-[40px] flex items-center justify-center shrink-0 -ml-1.5 transition-transform duration-300 group-hover:rotate-12">
             {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -139,7 +139,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         <button
           onClick={logout}
           title={(!isHovered && !isMobileOpen) ? "Log Out" : undefined}
-          className="p-3 rounded-xl flex items-center text-foreground/60 hover:bg-red-500/10 hover:text-red-500 transition-colors w-full overflow-hidden group shrink-0"
+          className="py-2.5 px-3 rounded-xl flex items-center text-foreground/60 hover:bg-red-500/10 hover:text-red-500 transition-colors w-full overflow-hidden group shrink-0"
         >
           <div className="min-w-[40px] flex items-center justify-center shrink-0 -ml-1.5 transition-transform duration-300 group-hover:translate-x-1">
              <LogOut size={20} />

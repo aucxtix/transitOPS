@@ -94,7 +94,7 @@ const Drivers = () => {
     const today = new Date();
     const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
     if (diffDays < 0) return 'text-red-500 font-bold';
-    if (diffDays <= 30) return 'text-amber-500 font-bold';
+    if (diffDays <= 30) return 'text-amber-600 dark:text-amber-400 font-bold';
     return 'text-foreground/70';
   };
 
@@ -164,10 +164,10 @@ const Drivers = () => {
                     <RoleGate allowedRoles={['Fleet Manager']}>
                       <td className="px-6 py-4 text-right">
                         <div className="flex justify-end gap-1">
-                          <button onClick={() => openEditModal(d)} className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-xl transition-colors">
+                          <button onClick={() => openEditModal(d)} title="Edit" aria-label="Edit" className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors">
                             <Edit2 size={16} />
                           </button>
-                          <button onClick={() => handleDelete(d.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors">
+                          <button onClick={() => handleDelete(d.id)} title="Delete" aria-label="Delete" className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors">
                             <Trash2 size={16} />
                           </button>
                         </div>

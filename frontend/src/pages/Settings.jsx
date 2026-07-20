@@ -177,7 +177,7 @@ const Settings = () => {
           )}
 
           {success && (
-            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-xl flex flex-col gap-2">
+            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl flex flex-col gap-2">
               <div className="flex items-center gap-3">
                 <CheckCircle2 size={18} />
                 <span className="text-sm font-medium">{success}</span>
@@ -188,7 +188,7 @@ const Settings = () => {
                   <p><strong>Username/Name:</strong> {declaredUser.name}</p>
                   <p><strong>Email:</strong> {declaredUser.email}</p>
                   <p><strong>Password:</strong> <span className="font-mono">{declaredUser.declaredPassword}</span></p>
-                  <p className="text-xs mt-2 text-emerald-500/80">Please securely share these credentials with the user. They will not be shown again.</p>
+                  <p className="text-xs mt-2 text-emerald-600 dark:text-emerald-400/80">Please securely share these credentials with the user. They will not be shown again.</p>
                 </div>
               )}
             </div>
@@ -299,7 +299,7 @@ const Settings = () => {
                         <div className="flex justify-end gap-1">
                           <button 
                             onClick={() => handleEditClick(user)}
-                            className="p-2 text-blue-500 hover:bg-blue-500/10 rounded-xl transition-colors"
+                            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-500/10 rounded-xl transition-colors"
                             title="Edit user"
                           >
                             <Edit2 size={16} />

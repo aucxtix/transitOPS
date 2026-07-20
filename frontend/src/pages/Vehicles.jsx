@@ -107,7 +107,7 @@ const Vehicles = () => {
                   <td className="px-6 py-4"><StatusBadge status={v.status} /></td>
                   <td className="px-6 py-4 text-right">
                     {hasRole(['Fleet Manager']) && (
-                      <button onClick={() => handleDelete(v.id)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors">
+                      <button onClick={() => handleDelete(v.id)} title="Delete" aria-label="Delete" className="p-2 text-red-500 hover:bg-red-500/10 rounded-xl transition-colors">
                         <Trash2 size={16} />
                       </button>
                     )}

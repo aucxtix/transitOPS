@@ -18,9 +18,9 @@ export const Modal = ({ isOpen, onClose, title, children, className }) => {
           <button 
             onClick={onClose}
             className="p-2 rounded-full hover:bg-foreground/10 transition-colors"
-          >
-            <X size={20} className="text-foreground/70" />
-          </button>
+           title="X" aria-label="X">
+                          <X size={16} />
+                        </button>
         </div>
         <div className="p-6">
           {children}
