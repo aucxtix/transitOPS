@@ -22,6 +22,8 @@ const Finance = () => {
   const [expenseData, setExpenseData] = useState({ type: 'Toll', amount: '', date: new Date().toISOString().slice(0, 10), vehicle_id: '' });
   const [isSubmittingExpense, setIsSubmittingExpense] = useState(false);
 
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, id: null, action: null });
+
   const fetchFinance = async () => {
     try {
       const [f, e] = await Promise.all([
@@ -107,8 +109,14 @@ const Finance = () => {
     }
   };
 
-  const handleApproval = async (id, action) => {
-    if (!confirm(`Are you sure you want to ${action} this expense?`)) return;
+  const handleApproval = (id, action) => {
+    setConfirmModal({ isOpen: true, id, action });
+  };
+
+  const executeApproval = async () => {
+    const { id, action } = confirmModal;
+    setConfirmModal({ isOpen: false, id: null, action: null });
+    if (!id || !action) return;
     try {
       await api.put(`/finance/expenses/${id}/${action}`);
       fetchFinance();
@@ -291,6 +299,18 @@ const Finance = () => {
               </button>
             </div>
           </form>
+        </Modal>
+
+        <Modal isOpen={confirmModal.isOpen} onClose={() => setConfirmModal({ isOpen: false, id: null, action: null })} title="Confirm Action">
+          <div className="space-y-4">
+            <p className="text-foreground/80">Are you sure you want to <strong className="capitalize">{confirmModal.action}</strong> this expense?</p>
+            <div className="pt-4 flex justify-end gap-3">
+              <button type="button" onClick={() => setConfirmModal({ isOpen: false, id: null, action: null })} className="px-5 py-2.5 rounded-xl font-semibold hover:bg-foreground/5 transition-colors">Cancel</button>
+              <button type="button" onClick={executeApproval} className={`pill-button shadow-md ${confirmModal.action === 'reject' ? 'bg-red-500 hover:bg-red-600' : 'bg-emerald-500 hover:bg-emerald-600'} text-white`}>
+                Yes, {confirmModal.action}
+              </button>
+            </div>
+          </div>
         </Modal>
       </div>
     </RoleGate>
