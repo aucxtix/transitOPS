@@ -15,6 +15,8 @@ import dashboardRoutes from './routes/dashboard.js';
 import financeRoutes from './routes/finance.js';
 import usersRoutes from './routes/users.js';
 import customersRoutes from './routes/customers.js';
+import auditRoutes from './routes/audit.js';
+import { auditLogger } from './middleware/audit.js';
 
 const app = express();
 
@@ -69,6 +71,7 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10kb' })); // Security Fix: Prevent oversized payloads
 app.use(morgan('dev'));
+app.use(auditLogger);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
@@ -96,6 +99,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/finance', financeRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/customers', customersRoutes);
+app.use('/api/audit', auditRoutes);
 
 // 404 catch-all for /api routes
 app.use('/api/*', (req, res) => {

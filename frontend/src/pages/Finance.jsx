@@ -16,9 +16,11 @@ const Finance = () => {
 
   const [isFuelModalOpen, setIsFuelModalOpen] = useState(false);
   const [fuelData, setFuelData] = useState({ vehicle_id: '', liters: '', cost: '', date: new Date().toISOString().slice(0, 10) });
+  const [isSubmittingFuel, setIsSubmittingFuel] = useState(false);
 
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [expenseData, setExpenseData] = useState({ type: 'Toll', amount: '', date: new Date().toISOString().slice(0, 10), vehicle_id: '' });
+  const [isSubmittingExpense, setIsSubmittingExpense] = useState(false);
 
   const fetchFinance = async () => {
     try {
@@ -63,6 +65,8 @@ const Finance = () => {
 
   const handleFuelSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmittingFuel) return;
+    setIsSubmittingFuel(true);
     try {
       await api.post('/finance/fuel', {
         ...fuelData,
@@ -75,11 +79,15 @@ const Finance = () => {
       fetchFinance();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to log fuel');
+    } finally {
+      setIsSubmittingFuel(false);
     }
   };
 
   const handleExpenseSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmittingExpense) return;
+    setIsSubmittingExpense(true);
     try {
       const payload = {
         ...expenseData,
@@ -94,6 +102,8 @@ const Finance = () => {
       fetchFinance();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to log expense');
+    } finally {
+      setIsSubmittingExpense(false);
     }
   };
 
@@ -190,10 +200,10 @@ const Finance = () => {
                         <td className="px-6 py-3 text-right">
                           {e.status === 'Pending' && (
                             <div className="flex justify-end gap-1">
-                              <button onClick={() => handleApproval(e.id, 'approve')} className="p-1.5 text-emerald-600 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg transition-colors" title="Approve">
+                              <button onClick={() => handleApproval(e.id, 'approve')} className="p-1.5 text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500 hover:text-white rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all" title="Approve">
                                 <Check size={16} />
                               </button>
-                              <button onClick={() => handleApproval(e.id, 'reject')} className="p-1.5 text-red-600 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-colors" title="Reject">
+                              <button onClick={() => handleApproval(e.id, 'reject')} className="p-1.5 text-red-600 bg-red-500/10 border border-red-500/20 hover:bg-red-500 hover:text-white rounded-lg shadow-sm hover:shadow-md active:scale-95 transition-all" title="Reject">
                                 <X size={16} />
                               </button>
                             </div>
@@ -239,7 +249,9 @@ const Finance = () => {
             </div>
             <div className="pt-4 flex justify-end gap-3">
               <button type="button" onClick={() => setIsFuelModalOpen(false)} className="px-5 py-2.5 rounded-xl font-semibold hover:bg-foreground/5 transition-colors">Cancel</button>
-              <button type="submit" disabled={vehicles.length === 0} className="pill-button pill-button-dark shadow-md disabled:opacity-50">Log Fuel</button>
+              <button type="submit" disabled={vehicles.length === 0 || isSubmittingFuel} className="pill-button pill-button-dark shadow-md disabled:opacity-50">
+                {isSubmittingFuel ? 'Logging...' : 'Log Fuel'}
+              </button>
             </div>
           </form>
         </Modal>
@@ -274,7 +286,9 @@ const Finance = () => {
             </div>
             <div className="pt-4 flex justify-end gap-3">
               <button type="button" onClick={() => setIsExpenseModalOpen(false)} className="px-5 py-2.5 rounded-xl font-semibold hover:bg-foreground/5 transition-colors">Cancel</button>
-              <button type="submit" className="pill-button pill-button-dark shadow-md">Submit for Approval</button>
+              <button type="submit" disabled={isSubmittingExpense} className="pill-button pill-button-dark shadow-md disabled:opacity-50">
+                {isSubmittingExpense ? 'Submitting...' : 'Submit for Approval'}
+              </button>
             </div>
           </form>
         </Modal>

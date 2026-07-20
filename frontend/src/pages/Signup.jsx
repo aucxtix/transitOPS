@@ -34,7 +34,12 @@ const Signup = () => {
         setError(loginError || 'Signup succeeded but auto-login failed. Please sign in manually.');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Signup failed. Please try again.');
+      const data = err.response?.data;
+      if (data?.details && Array.isArray(data.details)) {
+        setError(data.details.map(d => d.message).join(', '));
+      } else {
+        setError(data?.error || 'Signup failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -97,8 +102,8 @@ const Signup = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="px-5 py-4 bg-white/60 dark:bg-black/30 border border-white/50 dark:border-white/5 rounded-2xl outline-none focus:border-primary/50 focus:bg-white dark:focus:bg-black/50 transition-all font-medium shadow-sm backdrop-blur-sm placeholder:text-foreground/40"
-                placeholder="Min 6 characters"
-                minLength={6}
+                placeholder="Min 12 chars, 1 uppercase, 1 number, 1 special char"
+                minLength={12}
                 required
               />
             </div>

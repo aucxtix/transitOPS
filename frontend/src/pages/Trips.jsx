@@ -271,15 +271,15 @@ const Trips = () => {
                   <td className="px-6 py-4 text-right">
                     {hasRole(['Fleet Manager', 'Dispatcher']) && (
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => openEditModal(t)} className="text-xs px-3 py-1.5 bg-foreground/10 text-foreground rounded-xl hover:bg-foreground/20 font-medium transition-colors">Edit</button>
+                        <button onClick={() => openEditModal(t)} className="text-xs px-3 py-1.5 bg-foreground/5 border border-border text-foreground rounded-xl hover:bg-foreground hover:text-background shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Edit</button>
                         {t.status === 'Pending' && (
-                          <button onClick={() => handleDispatch(t.id)} className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 rounded-xl hover:bg-blue-500/20 font-medium transition-colors">Dispatch</button>
+                          <button onClick={() => handleDispatch(t.id)} className="text-xs px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-600 rounded-xl hover:bg-blue-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Dispatch</button>
                         )}
                         {t.status === 'On Trip' && (
-                          <button onClick={() => openCompleteModal(t.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-xl hover:bg-emerald-500/20 font-medium transition-colors">Complete</button>
+                          <button onClick={() => openCompleteModal(t.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Complete</button>
                         )}
                         {(t.status === 'Pending' || t.status === 'On Trip') && (
-                          <button onClick={() => handleCancel(t.id)} className="text-xs px-3 py-1.5 bg-red-500/10 text-red-600 rounded-xl hover:bg-red-500/20 font-medium transition-colors">Cancel</button>
+                          <button onClick={() => handleCancel(t.id)} className="text-xs px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl hover:bg-red-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Cancel</button>
                         )}
                       </div>
                     )}
@@ -324,12 +324,12 @@ const Trips = () => {
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         {r.status === 'Pending' && (
-                          <button onClick={() => openQuoteModal(r.id)} className="text-xs px-3 py-1.5 bg-blue-500/10 text-blue-600 rounded-xl hover:bg-blue-500/20 font-medium transition-colors">Send Quote</button>
+                          <button onClick={() => openQuoteModal(r.id)} className="text-xs px-3 py-1.5 bg-blue-500/10 border border-blue-500/20 text-blue-600 rounded-xl hover:bg-blue-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Send Quote</button>
                         )}
                         {r.status === 'Customer Approved' && (
-                          <button onClick={() => openApproveModal(r.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded-xl hover:bg-emerald-500/20 font-medium transition-colors">Dispatch</button>
+                          <button onClick={() => openApproveModal(r.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Dispatch</button>
                         )}
-                        <button onClick={() => handleReject(r.id)} className="text-xs px-3 py-1.5 bg-red-500/10 text-red-600 rounded-xl hover:bg-red-500/20 font-medium transition-colors">Reject</button>
+                        <button onClick={() => handleReject(r.id)} className="text-xs px-3 py-1.5 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl hover:bg-red-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">Reject</button>
                       </div>
                     </td>
                   </tr>

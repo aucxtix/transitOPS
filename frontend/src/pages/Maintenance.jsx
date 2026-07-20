@@ -13,10 +13,12 @@ const Maintenance = () => {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [createData, setCreateData] = useState({ vehicle_id: '', maintenance_name: '', description: '', notes: '' });
+  const [isSubmittingCreate, setIsSubmittingCreate] = useState(false);
   
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
   const [activeLogId, setActiveLogId] = useState(null);
   const [closeCost, setCloseCost] = useState('');
+  const [isSubmittingClose, setIsSubmittingClose] = useState(false);
 
   const fetchLogs = async () => {
     try {
@@ -50,6 +52,8 @@ const Maintenance = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    if (isSubmittingCreate) return;
+    setIsSubmittingCreate(true);
     try {
       await api.post('/maintenance', {
         ...createData,
@@ -60,6 +64,8 @@ const Maintenance = () => {
       fetchLogs();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to create maintenance log');
+    } finally {
+      setIsSubmittingCreate(false);
     }
   };
 
@@ -71,12 +77,16 @@ const Maintenance = () => {
 
   const handleClose = async (e) => {
     e.preventDefault();
+    if (isSubmittingClose) return;
+    setIsSubmittingClose(true);
     try {
       await api.put(`/maintenance/${activeLogId}/close`, { cost: parseFloat(closeCost) });
       setIsCloseModalOpen(false);
       fetchLogs();
     } catch (err) {
       alert(err.response?.data?.error || 'Failed to close log');
+    } finally {
+      setIsSubmittingClose(false);
     }
   };
 
@@ -126,7 +136,7 @@ const Maintenance = () => {
                   <td className="px-6 py-4"><StatusBadge status={l.status} /></td>
                   <td className="px-6 py-4 text-right">
                     {hasRole(['Fleet Manager', 'Safety Officer']) && l.status === 'Open' && (
-                      <button onClick={() => openCloseModal(l.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 text-emerald-600 rounded hover:bg-emerald-500/20 font-medium transition-colors">
+                      <button onClick={() => openCloseModal(l.id)} className="text-xs px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl hover:bg-emerald-500 hover:text-white shadow-sm hover:shadow-md active:scale-95 font-semibold transition-all">
                         Close Log
                       </button>
                     )}
@@ -168,7 +178,9 @@ const Maintenance = () => {
           </div>
           <div className="pt-4 flex justify-end gap-3">
             <button type="button" onClick={() => setIsCreateModalOpen(false)} className="px-5 py-2.5 rounded-xl font-semibold hover:bg-foreground/5 transition-colors">Cancel</button>
-            <button type="submit" disabled={vehicles.length === 0} className="pill-button pill-button-dark shadow-md disabled:opacity-50">Create Log</button>
+            <button type="submit" disabled={vehicles.length === 0 || isSubmittingCreate} className="pill-button pill-button-dark shadow-md disabled:opacity-50">
+              {isSubmittingCreate ? 'Creating...' : 'Create Log'}
+            </button>
           </div>
         </form>
       </Modal>
@@ -183,7 +195,9 @@ const Maintenance = () => {
           </div>
           <div className="pt-4 flex justify-end gap-3">
             <button type="button" onClick={() => setIsCloseModalOpen(false)} className="px-5 py-2.5 rounded-xl font-semibold hover:bg-foreground/5 transition-colors">Cancel</button>
-            <button type="submit" className="pill-button pill-button-dark shadow-md">Complete Maintenance</button>
+            <button type="submit" disabled={isSubmittingClose} className="pill-button pill-button-dark shadow-md disabled:opacity-50">
+              {isSubmittingClose ? 'Completing...' : 'Complete Maintenance'}
+            </button>
           </div>
         </form>
       </Modal>

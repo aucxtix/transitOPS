@@ -5,7 +5,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { 
   LayoutDashboard, Truck, Users, Map, Wrench, 
   CircleDollarSign, LogOut, Moon, Sun, 
-  Hexagon, BarChart3, Settings, X
+  Hexagon, BarChart3, Settings, X, ClipboardList
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -22,6 +22,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { path: '/maintenance', icon: Wrench, roles: ['Fleet Manager', 'Safety Officer'], tooltip: 'Maintenance' },
     { path: '/finance', icon: CircleDollarSign, roles: ['Fleet Manager', 'Financial Analyst'], tooltip: 'Finance' },
     { path: '/reports', icon: BarChart3, roles: ['Fleet Manager', 'Safety Officer', 'Financial Analyst'], tooltip: 'Reports' },
+    { path: '/audit-logs', icon: ClipboardList, roles: ['Fleet Manager'], tooltip: 'Log History' },
     { path: '/settings', icon: Settings, roles: ['Fleet Manager'], tooltip: 'Settings' },
   ];
 
